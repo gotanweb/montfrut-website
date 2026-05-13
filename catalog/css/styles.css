@@ -2242,24 +2242,39 @@ body {
   .catalog-grid-wrap, 
   .product-card, 
   .bestseller-card, 
-  .special-section {
+  .special-section,
+  .special-item,
+  .catalog-toolbar,
+  .catalog-hero,
+  main#main-content {
     width: 100% !important;
     max-width: 100% !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
     box-sizing: border-box !important;
+    overflow-wrap: break-word !important;
+    min-width: 0 !important;
+  }
+
+  /* Ensure images inside cards don't push width */
+  .product-card__img-wrap,
+  .bestseller-card__img-wrap,
+  .special-item__img-wrap,
+  .product-card__img,
+  .bestseller-card__img-wrap img,
+  .special-item__img-wrap img {
+    max-width: 100% !important;
+    height: auto !important;
   }
 
   .catalog-toolbar {
     display: flex !important;
     flex-wrap: wrap !important;
-    width: 100% !important;
-    max-width: 100% !important;
     gap: 0.5rem !important;
   }
 
   .search-wrap {
-    flex: 1 1 200px !important;
+    flex: 1 1 auto !important;
     min-width: 0 !important;
     max-width: 100% !important;
   }
@@ -2295,7 +2310,22 @@ body {
   }
 
   .special-item {
-    flex-basis: 85%;
+    flex-basis: 90%;
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+  }
+
+  .special-item__img-wrap {
+    width: 100%;
+    height: 120px;
+    margin-bottom: 0.5rem;
+  }
+
+  .special-item__img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .product-card {
@@ -2448,4 +2478,73 @@ body {
 
 .product-card__fav {
   display: none !important;
+}
+
+/* ==========================================================================
+   FINAL OVERFLOW HAMMER - DO NOT REMOVE
+   This ensures no element can ever be wider than the viewport on mobile.
+   ========================================================================== */
+@media (max-width: 767.98px) {
+  html, body {
+    overflow-x: hidden !important;
+    position: relative;
+    width: 100% !important;
+  }
+
+  .catalog-layout, 
+  .catalog-grid-wrap, 
+  .product-card, 
+  .bestseller-card, 
+  .special-section,
+  .special-item,
+  .catalog-toolbar,
+  .catalog-hero,
+  .search-wrap,
+  main#main-content,
+  .site-header,
+  .header-inner {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+    float: none !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Force verticality on all small screen items */
+  .special-item,
+  .product-card,
+  .bestseller-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    min-width: 0 !important;
+  }
+
+  /* Reset any absolute/fixed positioning that might cause overflow */
+  .product-card__badge,
+  .bestseller-card__badge {
+    position: absolute !important;
+  }
+
+  /* Ensure the search bar and filters don't push */
+  .catalog-toolbar {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+  }
+
+  .filters-toggle-btn,
+  .search-wrap,
+  .sort-select {
+    width: 100% !important;
+    flex: none !important;
+  }
+
+  .search-input {
+    width: 100% !important;
+  }
 }

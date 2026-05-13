@@ -1,22 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Montfrut - Premium artisan chocolates handcrafted with the finest ingredients. Discover our full catalog of bonbons, truffles, bars, and gift boxes.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description"
+    content="Montfrut - Premium artisan chocolates handcrafted with the finest ingredients. Discover our full catalog of bonbons, truffles, bars, and gift boxes.">
+  <meta name="keywords"
+    content="Montfrut, artisan chocolate, handcrafted bonbons, gourmet truffles, chocolate gift boxes, premium chocolate catalog">
+  <meta name="author" content="Montfrut">
   <title>Montfrut - Artisan Chocolate Catalog</title>
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.montfrut.com/catalog/">
+  <meta property="og:title" content="Montfrut - Artisan Chocolate Catalog">
+  <meta property="og:description"
+    content="Discover our collection of premium artisan chocolates. Handcrafted with passion and the finest ingredients.">
+  <meta property="og:image" content="https://www.montfrut.com/assets/img/montfrut-og.jpg">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://www.montfrut.com/catalog/">
+  <meta property="twitter:title" content="Montfrut - Artisan Chocolate Catalog">
+  <meta property="twitter:description"
+    content="Discover our collection of premium artisan chocolates. Handcrafted with passion and the finest ingredients.">
+  <meta property="twitter:image" content="https://www.montfrut.com/assets/img/montfrut-og.jpg">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../links/assets/img/favicon.png">
+  <link rel="canonical" href="https://www.montfrut.com/catalog/">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+    rel="stylesheet">
 
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=1.4">
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProductCatalog",
+    "name": "Catálogo de Chocolates Montfrut",
+    "description": "Explora nuestra colección exclusiva de chocolates artesanales, bombones, trufas y cajas de regalo premium.",
+    "url": "https://www.montfrut.com/catalog/",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Montfrut",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.montfrut.com/links/assets/img/montfrut-logo.png"
+      }
+    },
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Hazelnut Praline Bonbons",
+          "description": "Smooth hazelnut praline enrobed in rich dark chocolate."
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Signature Collection",
+          "description": "An exquisite selection of our most loved flavors."
+        }
+      ]
+    }
+  }
+  </script>
 </head>
+
 <body>
 
   <!-- =====================================================================
@@ -27,14 +91,8 @@
 
       <!-- Left: Hamburger (mobile only) -->
       <div class="header-left">
-        <button
-          class="hamburger-btn"
-          type="button"
-          data-bs-toggle="offcanvas"
-          data-bs-target="#filtersOffcanvas"
-          aria-controls="filtersOffcanvas"
-          aria-label="Open filters menu"
-        >
+        <button class="hamburger-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtersOffcanvas"
+          aria-controls="filtersOffcanvas" aria-label="Open filters menu">
           <span></span>
           <span></span>
           <span></span>
@@ -49,17 +107,27 @@
       <!-- Center: Logo -->
       <div class="header-center">
         <a href="#" aria-label="Montfrut — Home">
-          <img class="header-logo" src="../links/assets/img/montfrut-logo.png" alt="Montfrut - Artisan Chocolates" width="210" height="86">
+          <img class="header-logo" src="../links/assets/img/montfrut-logo.png" alt="Montfrut - Artisan Chocolates"
+            width="210" height="86">
         </a>
       </div>
 
       <!-- Right: Icons -->
       <div class="header-right">
         <button class="header-icon-btn" aria-label="Account">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
         </button>
         <button class="header-icon-btn" aria-label="Shopping cart" style="position:relative;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
           <span id="cart-count" class="cart-count d-none" aria-live="polite" aria-label="Items in cart">0</span>
         </button>
       </div>
@@ -99,14 +167,24 @@
       <aside class="filter-sidebar" aria-label="Product filters">
 
         <p class="filter-sidebar__title">
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="11" y1="18" x2="13" y2="18"></line></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+            <line x1="11" y1="18" x2="13" y2="18"></line>
+          </svg>
           Filters
         </p>
 
         <!-- Categories -->
         <div class="filter-group">
           <p class="filter-group__heading">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+              aria-hidden="true">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+              <line x1="7" y1="7" x2="7.01" y2="7"></line>
+            </svg>
             Categories
           </p>
           <label class="filter-check">
@@ -141,7 +219,11 @@
         <!-- Flavors -->
         <div class="filter-group">
           <p class="filter-group__heading">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+              aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
             Flavors
           </p>
           <label class="filter-check">
@@ -174,7 +256,12 @@
         <div class="filter-divider" aria-hidden="true"></div>
 
         <button type="button" class="btn-allergies" data-bs-toggle="modal" data-bs-target="#allergiesModal">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
           Allergies
         </button>
 
@@ -189,28 +276,27 @@
         <!-- Search + Sort toolbar -->
         <div class="catalog-toolbar">
           <!-- Filters button (mobile only) -->
-          <button
-            class="filters-toggle-btn"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#filtersOffcanvas"
-            aria-controls="filtersOffcanvas"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="11" y1="18" x2="13" y2="18"></line></svg>
+          <button class="filters-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtersOffcanvas"
+            aria-controls="filtersOffcanvas">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+              aria-hidden="true">
+              <line x1="4" y1="6" x2="20" y2="6"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+              <line x1="11" y1="18" x2="13" y2="18"></line>
+            </svg>
             Filters
           </button>
 
           <!-- Search -->
           <div class="search-wrap">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input
-              type="search"
-              id="search-input"
-              class="search-input"
-              placeholder="Search chocolates..."
-              aria-label="Search products"
-              autocomplete="off"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="search" id="search-input" class="search-input" placeholder="Search chocolates..."
+              aria-label="Search products" autocomplete="off">
           </div>
 
           <!-- Sort -->
@@ -229,10 +315,18 @@
             <h2 class="special-section__label" id="special-heading">Special Collection</h2>
             <div class="special-section__arrows">
               <button id="special-prev" class="carousel-arrow-btn" aria-label="Previous special items">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                  aria-hidden="true">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
               </button>
               <button id="special-next" class="carousel-arrow-btn" aria-label="Next special items">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                  aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
               </button>
             </div>
           </div>
@@ -249,7 +343,8 @@
           <!-- Dynamic product cards injected here by JS -->
         </div>
         <!-- No results -->
-        <p id="no-results" class="d-none" role="status" aria-live="polite" style="text-align:center;padding:2rem;color:var(--steel-teal);font-style:italic;">
+        <p id="no-results" class="d-none" role="status" aria-live="polite"
+          style="text-align:center;padding:2rem;color:var(--steel-teal);font-style:italic;">
           No products match your current filters.
         </p>
 
@@ -269,7 +364,10 @@
       <div class="footer-features">
         <div class="footer-feature">
           <div class="footer-feature__icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
           </div>
           <div class="footer-feature__text">
             <strong>Finest Ingredients</strong>
@@ -278,7 +376,11 @@
         </div>
         <div class="footer-feature">
           <div class="footer-feature__icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"></path><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"></path>
+              <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+            </svg>
           </div>
           <div class="footer-feature__text">
             <strong>Handcrafted</strong>
@@ -287,7 +389,11 @@
         </div>
         <div class="footer-feature">
           <div class="footer-feature__icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
           </div>
           <div class="footer-feature__text">
             <strong>Sustainable Cocoa</strong>
@@ -296,7 +402,13 @@
         </div>
         <div class="footer-feature">
           <div class="footer-feature__icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13"></rect>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+              <circle cx="5.5" cy="18.5" r="2.5"></circle>
+              <circle cx="18.5" cy="18.5" r="2.5"></circle>
+            </svg>
           </div>
           <div class="footer-feature__text">
             <strong>Secure Packaging</strong>
@@ -321,15 +433,17 @@
   <!-- =====================================================================
        OFFCANVAS — MOBILE FILTERS
        ===================================================================== -->
-  <div
-    class="offcanvas offcanvas-start offcanvas-filters"
-    tabindex="-1"
-    id="filtersOffcanvas"
-    aria-labelledby="filtersOffcanvasLabel"
-  >
+  <div class="offcanvas offcanvas-start offcanvas-filters" tabindex="-1" id="filtersOffcanvas"
+    aria-labelledby="filtersOffcanvasLabel">
     <div class="offcanvas-header">
       <h2 class="offcanvas-title" id="filtersOffcanvasLabel">
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right:0.4rem;opacity:.7;"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="11" y1="18" x2="13" y2="18"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+          style="margin-right:0.4rem;opacity:.7;">
+          <line x1="4" y1="6" x2="20" y2="6"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+          <line x1="11" y1="18" x2="13" y2="18"></line>
+        </svg>
         Filters
       </h2>
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close filters"></button>
@@ -339,11 +453,20 @@
       <!-- Main Navigation Links (Mobile) -->
       <div class="offcanvas-nav-links d-lg-none mb-4">
         <a href="../links/index.html" class="offcanvas-nav-link">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
           Links
         </a>
         <a href="https://www.montfrut.com" class="offcanvas-nav-link">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
           Website
         </a>
         <div class="filter-divider" aria-hidden="true"></div>
@@ -414,7 +537,12 @@
       <div class="filter-divider" aria-hidden="true"></div>
 
       <button type="button" class="btn-allergies w-100" data-bs-toggle="modal" data-bs-target="#allergiesModal">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
         Allergies Information
       </button>
 
@@ -425,14 +553,8 @@
   <!-- =====================================================================
        PRODUCT MODAL
        ===================================================================== -->
-  <div
-    class="modal fade modal-product"
-    id="productModal"
-    tabindex="-1"
-    aria-labelledby="productModalLabel"
-    aria-modal="true"
-    role="dialog"
-  >
+  <div class="modal fade modal-product" id="productModal" tabindex="-1" aria-labelledby="productModalLabel"
+    aria-modal="true" role="dialog">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
 
@@ -450,14 +572,17 @@
 
             <!-- Left: Carousel -->
             <div class="col-md-6">
-              <div id="modalCarousel" class="carousel slide modal-carousel" data-bs-ride="false" aria-label="Product images">
+              <div id="modalCarousel" class="carousel slide modal-carousel" data-bs-ride="false"
+                aria-label="Product images">
                 <div class="carousel-indicators" id="modal-carousel-indicators"></div>
                 <div class="carousel-inner" id="modal-carousel-inner"></div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#modalCarousel" data-bs-slide="prev">
+                <button class="carousel-control-prev" type="button" data-bs-target="#modalCarousel"
+                  data-bs-slide="prev">
                   <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                   <span class="visually-hidden">Previous image</span>
                 </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#modalCarousel" data-bs-slide="next">
+                <button class="carousel-control-next" type="button" data-bs-target="#modalCarousel"
+                  data-bs-slide="next">
                   <span class="carousel-control-next-icon" aria-hidden="true"></span>
                   <span class="visually-hidden">Next image</span>
                 </button>
@@ -487,14 +612,13 @@
 
         <!-- Footer -->
         <div class="modal-footer">
-          <button
-            type="button"
-            id="modal-add-to-cart"
-            class="btn-add-to-cart"
-            data-id=""
-            data-name=""
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          <button type="button" id="modal-add-to-cart" class="btn-add-to-cart" data-id="" data-name="">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
             Add to Cart
           </button>
           <button type="button" class="btn-details" data-bs-dismiss="modal">Close</button>
@@ -508,26 +632,20 @@
   <!-- =====================================================================
        TOAST — Add to Cart Notification
        ===================================================================== -->
-  <div
-    class="toast-container position-fixed bottom-0 end-0 p-3"
-    aria-live="polite"
-    aria-atomic="true"
-  >
-    <div
-      id="cart-toast"
-      class="toast montfrut-toast"
-      role="alert"
-      aria-live="assertive"
-      aria-atomic="true"
-      data-bs-delay="3000"
-    >
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" aria-live="polite" aria-atomic="true">
+    <div id="cart-toast" class="toast montfrut-toast" role="alert" aria-live="assertive" aria-atomic="true"
+      data-bs-delay="3000">
       <div class="toast-header">
         <span class="toast-title">Montfrut</span>
-        <button type="button" class="btn-close ms-auto" data-bs-dismiss="toast" aria-label="Dismiss notification"></button>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="toast"
+          aria-label="Dismiss notification"></button>
       </div>
       <div class="toast-body">
         <span class="toast-check-icon" aria-hidden="true">
-          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff"
+            stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
         </span>
         <span id="toast-body-text">Product added to cart.</span>
       </div>
@@ -538,13 +656,7 @@
   <!-- =====================================================================
        ALLERGIES MODAL
        ===================================================================== -->
-  <div
-    class="modal fade"
-    id="allergiesModal"
-    tabindex="-1"
-    aria-labelledby="allergiesModalLabel"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="allergiesModal" tabindex="-1" aria-labelledby="allergiesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -552,14 +664,16 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p>At Montfrut, we take food safety seriously. Please be aware that our products are handcrafted in a facility that processes common allergens.</p>
+          <p>At Montfrut, we take food safety seriously. Please be aware that our products are handcrafted in a facility
+            that processes common allergens.</p>
           <ul class="allergy-list">
             <li><strong>Dairy:</strong> Many of our chocolates contain cream and butter.</li>
             <li><strong>Nuts:</strong> We use hazelnuts, pistachios, and almonds in various recipes.</li>
             <li><strong>Soy:</strong> Some ingredients may contain soy lecithin as an emulsifier.</li>
             <li><strong>Gluten:</strong> While many products are gluten-free, cross-contamination is possible.</li>
           </ul>
-          <p class="mt-3 text-muted" style="font-size: 0.85rem;">For specific ingredient questions, please check the details of each individual product or contact our team.</p>
+          <p class="mt-3 text-muted" style="font-size: 0.85rem;">For specific ingredient questions, please check the
+            details of each individual product or contact our team.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn-details" data-bs-dismiss="modal">Close</button>
@@ -590,4 +704,5 @@
   </script>
 
 </body>
+
 </html>
