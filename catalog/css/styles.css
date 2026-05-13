@@ -771,27 +771,34 @@ a {
 .special-item__footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 0.4rem;
+  justify-content: flex-start;
+  gap: 0.8rem;
+  margin-top: 0.45rem;
 }
 
 .btn-details--mini {
-  padding: 0.2rem 0.4rem !important;
-  min-height: auto !important;
-  font-size: 0.65rem !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  border: none !important;
-  border-bottom: 1px solid var(--steel-teal) !important;
-  color: var(--steel-teal) !important;
-  font-weight: 500 !important;
+  padding: 0.25rem 0.6rem !important;
+  min-height: 26px !important;
+  font-size: 0.68rem !important;
+  border-radius: 4px !important;
+  background: var(--color-sidebar-bg) !important;
+  border: 1px solid rgba(13, 30, 50, 0.15) !important;
+  color: var(--midnight-blue) !important;
+  font-weight: 600 !important;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .btn-details--mini:hover {
+  background: #fff !important;
+  border-color: var(--desert-sand) !important;
   color: var(--midnight-blue) !important;
-  border-bottom-color: var(--midnight-blue) !important;
+  transform: translateY(-1px);
 }
 
 @media (max-width: 767.98px) {
@@ -1770,18 +1777,55 @@ body {
 
 .btn-add-to-cart,
 .btn-details {
-  border-radius: 6px;
-  min-height: 42px;
+  border-radius: 8px;
+  min-height: 38px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .btn-add-to-cart {
   background: linear-gradient(180deg, #0d1e32, #071829);
   color: var(--vanilla-cream);
+  border: none;
+}
+
+.btn-add-to-cart:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 30, 50, 0.2);
+  opacity: 0.9;
 }
 
 .btn-details {
-  background: rgba(255, 253, 247, 0.42);
-  border-color: rgba(13, 30, 50, 0.42);
+  background: #f8f9fa;
+  border: 1px solid rgba(13, 30, 50, 0.15);
+  color: var(--midnight-blue);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.btn-details:hover {
+  background: #ffffff;
+  border-color: var(--desert-sand);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(13, 30, 50, 0.08);
+}
+
+.btn-details--light {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+}
+
+.btn-details--light:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: #ffffff;
+}
+
+.btn-details--mini {
+  min-height: 28px;
+  font-size: 0.72rem;
+  padding: 0.25rem 0.65rem;
 }
 
 .bestseller-card {
@@ -2481,60 +2525,91 @@ body {
 }
 
 /* ==========================================================================
-   FINAL OVERFLOW HAMMER - DO NOT REMOVE
-   This ensures no element can ever be wider than the viewport on mobile.
+   MOBILE RESPONSIVENESS OVERHAUL
+   Ensures all items fit perfectly within the device width.
    ========================================================================== */
 @media (max-width: 767.98px) {
   html, body {
     overflow-x: hidden !important;
-    position: relative;
     width: 100% !important;
   }
 
+  /* Main container constraints */
   .catalog-layout, 
+  .catalog-main,
   .catalog-grid-wrap, 
-  .product-card, 
-  .bestseller-card, 
-  .special-section,
-  .special-item,
-  .catalog-toolbar,
   .catalog-hero,
-  .search-wrap,
-  main#main-content,
-  .site-header,
-  .header-inner {
+  main#main-content {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
     box-sizing: border-box !important;
-    float: none !important;
     overflow-x: hidden !important;
   }
 
-  /* Force verticality on all small screen items */
-  .special-item,
+  .special-section {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Grid and Flex containers */
+  .catalog-grid-wrap {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  /* Card and Item verticality */
   .product-card,
-  .bestseller-card {
+  .bestseller-card,
+  .special-item {
     display: flex !important;
     flex-direction: column !important;
-    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
     min-width: 0 !important;
+    margin-bottom: 1rem !important;
+    align-items: stretch !important;
+    height: auto !important;
+    overflow: hidden !important;
   }
 
-  /* Reset any absolute/fixed positioning that might cause overflow */
-  .product-card__badge,
-  .bestseller-card__badge {
-    position: absolute !important;
+  /* Image Aspect Ratios (Fixing the "Giant Images" issue) */
+  .product-card__img-wrap,
+  .bestseller-card__img-wrap {
+    width: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+    height: auto !important;
+    max-height: 220px !important;
   }
 
-  /* Ensure the search bar and filters don't push */
+  .special-item__img-wrap {
+    width: 100% !important;
+    height: 140px !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .product-card__img,
+  .bestseller-card__img-wrap img,
+  .special-item__img-wrap img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* Toolbar adjustments */
   .catalog-toolbar {
-    display: flex !important;
     flex-direction: column !important;
     gap: 0.75rem !important;
     width: 100% !important;
+    display: flex !important;
   }
 
   .filters-toggle-btn,
@@ -2546,5 +2621,15 @@ body {
 
   .search-input {
     width: 100% !important;
+  }
+
+  /* Footer centering */
+  .footer-features {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+    justify-items: center !important;
+  }
+}
+
   }
 }

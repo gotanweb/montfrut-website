@@ -472,7 +472,15 @@ function moveCarousel(direction) {
   const gap = parseFloat(getComputedStyle(document.getElementById('special-track')).columnGap) || 14;
   const visibleItems = getVisibleSpecialItems();
 
-  carouselIndex = Math.max(0, Math.min(carouselIndex + direction, specialProducts.length - visibleItems));
+  const maxIndex = Math.max(0, specialProducts.length - visibleItems);
+  
+  if (direction === 1 && carouselIndex >= maxIndex) {
+    carouselIndex = 0; // Loop back to start
+  } else if (direction === -1 && carouselIndex <= 0) {
+    carouselIndex = maxIndex; // Loop to end
+  } else {
+    carouselIndex = Math.max(0, Math.min(carouselIndex + direction, maxIndex));
+  }
 
   const track = document.getElementById('special-track');
   if (track) {
@@ -480,6 +488,24 @@ function moveCarousel(direction) {
   }
 
   updateCarouselButtons(specialProducts.length);
+}
+
+// Auto-play carousel
+let carouselInterval;
+function startCarouselAutoPlay() {
+  stopCarouselAutoPlay();
+  const specialProducts = products.filter(p => p.isSpecialCollection);
+  const visibleItems = getVisibleSpecialItems();
+  
+  if (specialProducts.length <= visibleItems) return; // Don't play if everything is visible
+
+  carouselInterval = setInterval(() => {
+    moveCarousel(1);
+  }, 4000); // 4 seconds
+}
+
+function stopCarouselAutoPlay() {
+  if (carouselInterval) clearInterval(carouselInterval);
 }
 
 
@@ -666,12 +692,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // Special collection carousel buttons
   const btnPrev = document.getElementById('special-prev');
   const btnNext = document.getElementById('special-next');
-  if (btnPrev) btnPrev.addEventListener('click', () => moveCarousel(-1));
-  if (btnNext) btnNext.addEventListener('click', () => moveCarousel(1));
+  if (btnPrev) btnPrev.addEventListener('click', () => {
+    moveCarousel(-1);
+    startCarouselAutoPlay(); // Reset timer
+  });
+  if (btnNext) btnNext.addEventListener('click', () => {
+    moveCarousel(1);
+    startCarouselAutoPlay(); // Reset timer
+  });
+  
+  startCarouselAutoPlay(); // Initial start
+
   window.addEventListener('resize', () => {
     const specialProducts = products.filter(p => p.isSpecialCollection);
     carouselIndex = Math.min(carouselIndex, Math.max(0, specialProducts.length - getVisibleSpecialItems()));
     moveCarousel(0);
+    startCarouselAutoPlay();
   }, { passive: true });
 
   // Smooth scroll for internal anchors
