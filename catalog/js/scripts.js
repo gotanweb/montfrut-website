@@ -703,11 +703,13 @@ document.addEventListener('DOMContentLoaded', () => {
   
   startCarouselAutoPlay(); // Initial start
 
+  let resizeTimer;
   window.addEventListener('resize', () => {
-    const specialProducts = products.filter(p => p.isSpecialCollection);
-    carouselIndex = Math.min(carouselIndex, Math.max(0, specialProducts.length - getVisibleSpecialItems()));
-    moveCarousel(0);
-    startCarouselAutoPlay();
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      renderSpecialCollection();
+      startCarouselAutoPlay();
+    }, 150);
   }, { passive: true });
 
   // Smooth scroll for internal anchors
