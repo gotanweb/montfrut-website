@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\pablo\\\\OneDrive\\\\Documentos\\\\GitHub\\\\montfrut-website\\\\css\")",
+      "Bash(Out-Null)",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\pablo\\\\OneDrive\\\\Documentos\\\\GitHub\\\\montfrut-website\\\\js\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\pablo\\\\OneDrive\\\\Documentos\\\\GitHub\\\\montfrut-website\\\\assets\\\\img\\\\portfolio\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\pablo\\\\OneDrive\\\\Documentos\\\\GitHub\\\\montfrut-website\\\\assets\\\\img\\\\collections\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\pablo\\\\OneDrive\\\\Documentos\\\\GitHub\\\\montfrut-website\\\\assets\\\\img\\\\payment\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\pablo\\\\OneDrive\\\\Documentos\\\\GitHub\\\\montfrut-website\\\\assets\\\\img\\\\recognition\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\pablo\\\\OneDrive\\\\Documentos\\\\GitHub\\\\montfrut-website\\\\assets\\\\img\\\\community\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\pablo\\\\OneDrive\\\\Documentos\\\\GitHub\\\\montfrut-website\\\\assets\\\\img\\\\reviews\")",
+      "Bash(Write-Host \"Directories created\")"
+    ]
+  }
+}
