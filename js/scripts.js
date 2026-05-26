@@ -323,6 +323,7 @@ function defaultItemsPerView() {
 document.addEventListener('DOMContentLoaded', () => {
   buildNavCache();          // must run before initHeader so offsets are ready
   initHeader();
+  initMobileNavAnimation();
   initIntersectionReveal();
   initSmoothScrollLinks();
   initPortfolioTabs();
@@ -377,6 +378,31 @@ function initHeader() {
   window.addEventListener('scroll', handleScroll, { passive: true });
   handleScroll(); // run once on init
 }
+
+/* ============================================================
+   4b. MOBILE NAV — Hamburger ↔ X animation
+   ============================================================ */
+
+/**
+ * Toggle .is-open on the hamburger button in sync with Bootstrap's
+ * offcanvas show/hide events, driving the CSS hamburger → X animation.
+ */
+function initMobileNavAnimation() {
+  const mobileNav = document.getElementById('mobileNav');
+  const hamburger = document.querySelector('.hamburger-btn');
+  if (!mobileNav || !hamburger) return;
+
+  mobileNav.addEventListener('show.bs.offcanvas', () => {
+    hamburger.classList.add('is-open');
+    hamburger.setAttribute('aria-expanded', 'true');
+  });
+
+  mobileNav.addEventListener('hide.bs.offcanvas', () => {
+    hamburger.classList.remove('is-open');
+    hamburger.setAttribute('aria-expanded', 'false');
+  });
+}
+
 
 /**
  * Highlight the nav link whose section is currently in view.
