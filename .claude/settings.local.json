@@ -10,7 +10,11 @@
       "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\pablo\\\\OneDrive\\\\Documentos\\\\GitHub\\\\montfrut-website\\\\assets\\\\img\\\\recognition\")",
       "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\pablo\\\\OneDrive\\\\Documentos\\\\GitHub\\\\montfrut-website\\\\assets\\\\img\\\\community\")",
       "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\pablo\\\\OneDrive\\\\Documentos\\\\GitHub\\\\montfrut-website\\\\assets\\\\img\\\\reviews\")",
-      "Bash(Write-Host \"Directories created\")"
+      "Bash(Write-Host \"Directories created\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\pablo\\\\OneDrive\\\\Documentos\\\\GitHub\\\\montfrut-website\\\\.claude\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(node generate-placeholders.js)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp"
     ]
   }
 }

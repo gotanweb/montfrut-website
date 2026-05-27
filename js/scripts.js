@@ -16,11 +16,11 @@ const recognitions = [
     title: 'A Conversation About Craft',
     source: '@estamosunidosok × @flavita.on',
     date: 'May 2026',
-    cover: 'assets/img/recognition/rec-01-cover.jpg',
+    cover: 'assets/img/recognition/rec-01-cover.png',
     gallery: [
-      'assets/img/recognition/rec-01-gallery-1.jpg',
-      'assets/img/recognition/rec-01-gallery-2.jpg',
-      'assets/img/recognition/rec-01-gallery-3.jpg',
+      'assets/img/recognition/rec-01-gallery-1.png',
+      'assets/img/recognition/rec-01-gallery-2.png',
+      'assets/img/recognition/rec-01-gallery-3.png',
     ],
     excerpt: 'A deep dive into the Montfrut story, our process, and the meaning behind every bonbon.',
     description: `<p>In this interview with the talented team at <strong>@estamosunidosok</strong> and <strong>@flavita.on</strong>, we sat down to talk about what it truly means to craft chocolate with intention.</p>
@@ -35,10 +35,10 @@ const recognitions = [
     title: 'Featured in Local Press',
     source: 'NJ Food Magazine',
     date: 'March 2026',
-    cover: 'assets/img/recognition/rec-02-cover.jpg',
+    cover: 'assets/img/recognition/rec-02-cover.png',
     gallery: [
-      'assets/img/recognition/rec-02-gallery-1.jpg',
-      'assets/img/recognition/rec-02-gallery-2.jpg',
+      'assets/img/recognition/rec-02-gallery-1.png',
+      'assets/img/recognition/rec-02-gallery-2.png',
     ],
     excerpt: 'NJ Food Magazine highlights Montfrut as one of the region\'s most exciting artisan chocolate studios.',
     description: `<p>NJ Food Magazine's spring 2026 feature spotlighted emerging food artisans across the tristate area — and Montfrut was among those recognized for redefining what premium chocolate means in New Jersey.</p>
@@ -53,9 +53,9 @@ const recognitions = [
     title: 'Podcast: The Sweet Side of Business',
     source: 'Entrepreneur Spotlight Series',
     date: 'January 2026',
-    cover: 'assets/img/recognition/rec-03-cover.jpg',
+    cover: 'assets/img/recognition/rec-03-cover.png',
     gallery: [
-      'assets/img/recognition/rec-03-gallery-1.jpg',
+      'assets/img/recognition/rec-03-gallery-1.png',
     ],
     excerpt: 'An in-depth conversation about building a luxury food brand from the ground up in the competitive NY/NJ market.',
     description: `<p>The <em>Entrepreneur Spotlight Series</em> podcast invited us for a candid conversation about what it takes to build a boutique chocolate brand in one of the world's most competitive food markets.</p>
@@ -73,10 +73,10 @@ const communityItems = [
     title: 'Holiday Boxes for Local Shelters',
     source: 'Community Initiative',
     date: 'December 2025',
-    cover: 'assets/img/community/comm-01-cover.jpg',
+    cover: 'assets/img/community/comm-01-cover.png',
     gallery: [
-      'assets/img/community/comm-01-gallery-1.jpg',
-      'assets/img/community/comm-01-gallery-2.jpg',
+      'assets/img/community/comm-01-gallery-1.png',
+      'assets/img/community/comm-01-gallery-2.png',
     ],
     excerpt: 'We donated 200 custom holiday boxes to families served by Jersey City community shelters.',
     description: `<p>During the 2025 holiday season, Montfrut partnered with local community shelters in Jersey City to donate <strong>200 hand-packed holiday boxes</strong> to families in need.</p>
@@ -93,9 +93,9 @@ const communityItems = [
     title: 'Chocolate Workshop for Youth Center',
     source: 'Education & Craft',
     date: 'August 2025',
-    cover: 'assets/img/community/comm-02-cover.jpg',
+    cover: 'assets/img/community/comm-02-cover.png',
     gallery: [
-      'assets/img/community/comm-02-gallery-1.jpg',
+      'assets/img/community/comm-02-gallery-1.png',
     ],
     excerpt: 'A hands-on chocolate-making workshop for 30 teens from a local youth program.',
     description: `<p>In August 2025, we hosted a full-day chocolate-making workshop for <strong>30 teenagers</strong> from a local youth development program in Jersey City.</p>
@@ -112,9 +112,9 @@ const communityItems = [
     title: 'Fundraiser Partnership',
     source: 'Community Fundraising',
     date: 'June 2025',
-    cover: 'assets/img/community/comm-03-cover.jpg',
+    cover: 'assets/img/community/comm-03-cover.png',
     gallery: [
-      'assets/img/community/comm-03-gallery-1.jpg',
+      'assets/img/community/comm-03-gallery-1.png',
     ],
     excerpt: 'Partnered with a local cause to raise funds through curated chocolate boxes at a community event.',
     description: `<p>Montfrut joined forces with a local nonprofit organization for their June 2025 fundraising gala, contributing curated chocolate boxes as both centerpieces and auction items.</p>
@@ -187,7 +187,7 @@ const collections = [
     name: 'Signature Collection',
     count: '12 pieces',
     desc: 'Our most beloved flavors, curated into a single elegant box.',
-    img: 'assets/img/collections/signature.jpg',
+    img: 'assets/img/collections/signature.png',
     imgAlt: 'Montfrut Signature Collection — 12 pieces of assorted artisan bonbons',
     link: '/catalog/',
   },
@@ -196,7 +196,7 @@ const collections = [
     name: 'Premium Collection',
     count: '24 pieces',
     desc: 'An elevated selection featuring our rarest and most intricate creations.',
-    img: 'assets/img/collections/premium.jpg',
+    img: 'assets/img/collections/premium.png',
     imgAlt: 'Montfrut Premium Collection — 24 pieces of premium artisan chocolates',
     link: '/catalog/',
   },
@@ -205,7 +205,7 @@ const collections = [
     name: 'Seasonal Winter',
     count: '9 pieces',
     desc: 'Winter flavors — spiced ganache, peppermint bark, and warm cocoa bonbons.',
-    img: 'assets/img/collections/seasonal.jpg',
+    img: 'assets/img/collections/seasonal.png',
     imgAlt: 'Montfrut Seasonal Winter Collection — 9 winter-inspired artisan chocolates',
     link: '/catalog/',
   },
@@ -214,7 +214,7 @@ const collections = [
     name: 'Dubai Bar',
     count: '1 bar · 200g',
     desc: 'The viral sensation: pistachio cream and kataifi wrapped in smooth milk chocolate.',
-    img: 'assets/img/collections/dubai.jpg',
+    img: 'assets/img/collections/dubai.png',
     imgAlt: 'Montfrut Dubai Bar — pistachio and kataifi artisan chocolate bar',
     link: '/catalog/',
   },
@@ -223,7 +223,7 @@ const collections = [
     name: 'Mini Moments',
     count: '6 pieces',
     desc: 'Perfect for gifting — a compact selection of our most popular bites.',
-    img: 'assets/img/collections/mini.jpg',
+    img: 'assets/img/collections/mini.png',
     imgAlt: 'Montfrut Mini Moments Collection — 6-piece artisan chocolate gift set',
     link: '/catalog/',
   },
@@ -231,28 +231,28 @@ const collections = [
 
 const portfolioItems = {
   corporate: [
-    { tag: 'Branded Gift Set', title: 'Branded Logo Bonbons', desc: 'Custom-molded bonbons bearing your company logo in edible gold or white chocolate.', img: 'assets/img/portfolio/corporate-01.jpg', imgAlt: 'Branded logo bonbons for corporate gifting' },
-    { tag: 'Gift Box', title: 'Executive Gift Boxes', desc: 'Curated luxury boxes for C-suite clients and VIP partners, with custom ribbon and letter.', img: 'assets/img/portfolio/corporate-02.jpg', imgAlt: 'Executive corporate chocolate gift boxes' },
-    { tag: 'Seasonal', title: 'Holiday Corporate Hampers', desc: 'Festive hampers combining our best-sellers with seasonal flavors and branded packaging.', img: 'assets/img/portfolio/corporate-03.jpg', imgAlt: 'Holiday corporate chocolate hampers' },
-    { tag: 'Event Welcome', title: 'Conference Welcome Sets', desc: 'Elegant table-top gift sets that set the tone for conferences, launches, and offsites.', img: 'assets/img/portfolio/corporate-04.jpg', imgAlt: 'Conference welcome chocolate sets' },
-    { tag: 'Anniversary', title: 'Client Anniversary Editions', desc: 'Milestone gifts that mark company anniversaries with bespoke flavors and presentation.', img: 'assets/img/portfolio/corporate-05.jpg', imgAlt: 'Client anniversary edition chocolate boxes' },
-    { tag: 'Packaging', title: 'Custom Packaging Design', desc: 'From box to ribbon to insert card — fully branded unboxing experiences.', img: 'assets/img/portfolio/corporate-06.jpg', imgAlt: 'Custom chocolate packaging design for corporate clients' },
+    { tag: 'Branded Gift Set', title: 'Branded Logo Bonbons', desc: 'Custom-molded bonbons bearing your company logo in edible gold or white chocolate.', img: 'assets/img/portfolio/corporate-01.png', imgAlt: 'Branded logo bonbons for corporate gifting' },
+    { tag: 'Gift Box', title: 'Executive Gift Boxes', desc: 'Curated luxury boxes for C-suite clients and VIP partners, with custom ribbon and letter.', img: 'assets/img/portfolio/corporate-02.png', imgAlt: 'Executive corporate chocolate gift boxes' },
+    { tag: 'Seasonal', title: 'Holiday Corporate Hampers', desc: 'Festive hampers combining our best-sellers with seasonal flavors and branded packaging.', img: 'assets/img/portfolio/corporate-03.png', imgAlt: 'Holiday corporate chocolate hampers' },
+    { tag: 'Event Welcome', title: 'Conference Welcome Sets', desc: 'Elegant table-top gift sets that set the tone for conferences, launches, and offsites.', img: 'assets/img/portfolio/corporate-04.png', imgAlt: 'Conference welcome chocolate sets' },
+    { tag: 'Anniversary', title: 'Client Anniversary Editions', desc: 'Milestone gifts that mark company anniversaries with bespoke flavors and presentation.', img: 'assets/img/portfolio/corporate-05.png', imgAlt: 'Client anniversary edition chocolate boxes' },
+    { tag: 'Packaging', title: 'Custom Packaging Design', desc: 'From box to ribbon to insert card — fully branded unboxing experiences.', img: 'assets/img/portfolio/corporate-06.png', imgAlt: 'Custom chocolate packaging design for corporate clients' },
   ],
   events: [
-    { tag: 'Wedding', title: 'Wedding Favors', desc: 'Personalized bonbon boxes or wrapped bars as unforgettable favors for every guest.', img: 'assets/img/portfolio/events-01.jpg', imgAlt: 'Artisan chocolate wedding favors' },
-    { tag: 'Celebration', title: 'Bar/Bat Mitzvah Collections', desc: 'Themed chocolate gifts celebrating this milestone with elegance and personal touch.', img: 'assets/img/portfolio/events-02.jpg', imgAlt: 'Bar and Bat Mitzvah chocolate collections' },
-    { tag: 'Anniversary', title: 'Anniversary Towers', desc: 'Stacked presentation towers of bonbons — a dramatic centerpiece for any celebration.', img: 'assets/img/portfolio/events-03.jpg', imgAlt: 'Anniversary chocolate towers' },
-    { tag: 'Live Experience', title: 'Live Chocolate Stations', desc: 'An interactive tempering and dipping station that becomes the event\'s talking point.', img: 'assets/img/portfolio/events-04.jpg', imgAlt: 'Live chocolate station at events' },
-    { tag: 'Themed', title: 'Themed Event Boxes', desc: 'Color-coordinated, theme-matched boxes that tie into your event\'s visual identity.', img: 'assets/img/portfolio/events-05.jpg', imgAlt: 'Themed chocolate event boxes' },
-    { tag: 'Exclusive', title: 'Private Tasting Experiences', desc: 'Guided chocolate tasting sessions — perfect for bridal showers, corporate retreats, and VIP events.', img: 'assets/img/portfolio/events-06.jpg', imgAlt: 'Private chocolate tasting experience' },
+    { tag: 'Wedding', title: 'Wedding Favors', desc: 'Personalized bonbon boxes or wrapped bars as unforgettable favors for every guest.', img: 'assets/img/portfolio/events-01.png', imgAlt: 'Artisan chocolate wedding favors' },
+    { tag: 'Celebration', title: 'Bar/Bat Mitzvah Collections', desc: 'Themed chocolate gifts celebrating this milestone with elegance and personal touch.', img: 'assets/img/portfolio/events-02.png', imgAlt: 'Bar and Bat Mitzvah chocolate collections' },
+    { tag: 'Anniversary', title: 'Anniversary Towers', desc: 'Stacked presentation towers of bonbons — a dramatic centerpiece for any celebration.', img: 'assets/img/portfolio/events-03.png', imgAlt: 'Anniversary chocolate towers' },
+    { tag: 'Live Experience', title: 'Live Chocolate Stations', desc: 'An interactive tempering and dipping station that becomes the event\'s talking point.', img: 'assets/img/portfolio/events-04.png', imgAlt: 'Live chocolate station at events' },
+    { tag: 'Themed', title: 'Themed Event Boxes', desc: 'Color-coordinated, theme-matched boxes that tie into your event\'s visual identity.', img: 'assets/img/portfolio/events-05.png', imgAlt: 'Themed chocolate event boxes' },
+    { tag: 'Exclusive', title: 'Private Tasting Experiences', desc: 'Guided chocolate tasting sessions — perfect for bridal showers, corporate retreats, and VIP events.', img: 'assets/img/portfolio/events-06.png', imgAlt: 'Private chocolate tasting experience' },
   ],
   special: [
-    { tag: 'Birthday', title: 'Birthday Boxes', desc: 'Bespoke boxes for birthdays of all ages — from playful flavor pops to refined dark selections.', img: 'assets/img/portfolio/special-01.jpg', imgAlt: 'Birthday chocolate gift boxes' },
-    { tag: 'Valentine\'s', title: 'Valentine\'s Editions', desc: 'Heart-shaped bonbons and rose-scented truffles for the most romantic gesture.', img: 'assets/img/portfolio/special-02.jpg', imgAlt: "Valentine's Day artisan chocolate editions" },
-    { tag: 'Holiday', title: "Mother's & Father's Day", desc: 'Thoughtful seasonal collections for the ones who deserve something truly special.', img: 'assets/img/portfolio/special-03.jpg', imgAlt: "Mother's and Father's Day chocolate gifts" },
-    { tag: 'Milestone', title: 'Graduation Gifts', desc: 'Mark academic achievements with a sweet reward — custom-boxed with congratulatory messaging.', img: 'assets/img/portfolio/special-04.jpg', imgAlt: 'Graduation chocolate gift boxes' },
-    { tag: 'Get Well', title: 'Get Well Sets', desc: 'Comforting and kind — small selections to brighten someone\'s difficult moment.', img: 'assets/img/portfolio/special-05.jpg', imgAlt: 'Get well chocolate gift sets' },
-    { tag: 'Just Because', title: 'Just Because Boxes', desc: 'No occasion needed. The finest excuse to say you care.', img: 'assets/img/portfolio/special-06.jpg', imgAlt: '"Just Because" artisan chocolate boxes' },
+    { tag: 'Birthday', title: 'Birthday Boxes', desc: 'Bespoke boxes for birthdays of all ages — from playful flavor pops to refined dark selections.', img: 'assets/img/portfolio/special-01.png', imgAlt: 'Birthday chocolate gift boxes' },
+    { tag: 'Valentine\'s', title: 'Valentine\'s Editions', desc: 'Heart-shaped bonbons and rose-scented truffles for the most romantic gesture.', img: 'assets/img/portfolio/special-02.png', imgAlt: "Valentine's Day artisan chocolate editions" },
+    { tag: 'Holiday', title: "Mother's & Father's Day", desc: 'Thoughtful seasonal collections for the ones who deserve something truly special.', img: 'assets/img/portfolio/special-03.png', imgAlt: "Mother's and Father's Day chocolate gifts" },
+    { tag: 'Milestone', title: 'Graduation Gifts', desc: 'Mark academic achievements with a sweet reward — custom-boxed with congratulatory messaging.', img: 'assets/img/portfolio/special-04.png', imgAlt: 'Graduation chocolate gift boxes' },
+    { tag: 'Get Well', title: 'Get Well Sets', desc: 'Comforting and kind — small selections to brighten someone\'s difficult moment.', img: 'assets/img/portfolio/special-05.png', imgAlt: 'Get well chocolate gift sets' },
+    { tag: 'Just Because', title: 'Just Because Boxes', desc: 'No occasion needed. The finest excuse to say you care.', img: 'assets/img/portfolio/special-06.png', imgAlt: '"Just Because" artisan chocolate boxes' },
   ],
 };
 
@@ -498,50 +498,43 @@ function initPortfolioTabs() {
   }
 
   const tabs = document.querySelectorAll('.portfolio-tab');
-  const panes = document.querySelectorAll('.portfolio-pane');
   if (!tabs.length) return;
 
-  /* Restore tab from URL hash on load */
+  /* Restore tab from URL hash on load — delegate to Bootstrap Tab API */
   const hash = window.location.hash;
   const tabFromHash = hash.replace('#portfolio-', '');
   const matchingTab = document.querySelector(`.portfolio-tab[data-tab="${tabFromHash}"]`);
-  if (matchingTab) switchTab(tabs, panes, matchingTab);
+  if (matchingTab && typeof bootstrap !== 'undefined') {
+    bootstrap.Tab.getOrCreateInstance(matchingTab).show();
+  }
 
   tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      switchTab(tabs, panes, tab);
-      /* Persist active tab in URL */
+    /* Persist active tab in URL and scroll it into view within the tab bar */
+    tab.addEventListener('shown.bs.tab', () => {
       history.replaceState(null, '', `#portfolio-${tab.dataset.tab}`);
+      /* Ensures the active tab is always visible in the scrollable bar on mobile */
+      tab.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
     });
 
-    /* Keyboard: arrow keys to navigate between tabs */
+    /* Keyboard: arrow keys navigate between tabs, Bootstrap handles show/hide */
     tab.addEventListener('keydown', e => {
       const tabArray = Array.from(tabs);
       const idx = tabArray.indexOf(tab);
+      let target = null;
+
       if (e.key === 'ArrowRight') {
         e.preventDefault();
-        tabArray[(idx + 1) % tabArray.length].focus();
+        target = tabArray[(idx + 1) % tabArray.length];
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        tabArray[(idx - 1 + tabArray.length) % tabArray.length].focus();
+        target = tabArray[(idx - 1 + tabArray.length) % tabArray.length];
+      }
+
+      if (target && typeof bootstrap !== 'undefined') {
+        bootstrap.Tab.getOrCreateInstance(target).show();
+        target.focus();
       }
     });
-  });
-}
-
-/**
- * Switch the active portfolio tab and corresponding pane.
- * @param {NodeList} tabs
- * @param {NodeList} panes
- * @param {Element} activeTab
- */
-function switchTab(tabs, panes, activeTab) {
-  activateTab(Array.from(tabs), activeTab);
-  const targetId = activeTab.getAttribute('aria-controls');
-  panes.forEach(pane => {
-    const isTarget = pane.id === targetId;
-    pane.hidden = !isTarget;
-    pane.classList.toggle('active', isTarget);
   });
 }
 
