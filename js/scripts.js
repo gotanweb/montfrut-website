@@ -329,6 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initPortfolioTabs();
   initCollectionsCarousel();
   initReviewsCarousel();
+  initFaqIcons();
   initRecognitionGrid();
   initCommunityGrid();
   initContactForm();
@@ -606,7 +607,27 @@ function initCollectionsCarousel() {
 
 
 /* ============================================================
-   9. REVIEWS CAROUSEL
+   9. FAQ ICON ROTATION
+   ============================================================ */
+
+function initFaqIcons() {
+  const accordion = document.getElementById('faqAccordion');
+  if (!accordion) return;
+
+  accordion.addEventListener('show.bs.collapse', (e) => {
+    const btn = accordion.querySelector(`[data-bs-target="#${e.target.id}"]`);
+    if (btn) btn.querySelector('.faq-icon')?.classList.add('faq-icon--open');
+  });
+
+  accordion.addEventListener('hide.bs.collapse', (e) => {
+    const btn = accordion.querySelector(`[data-bs-target="#${e.target.id}"]`);
+    if (btn) btn.querySelector('.faq-icon')?.classList.remove('faq-icon--open');
+  });
+}
+
+
+/* ============================================================
+   10. REVIEWS CAROUSEL
    ============================================================ */
 
 function initReviewsCarousel() {
@@ -645,6 +666,7 @@ function initReviewsCarousel() {
     getItemsPerView: defaultItemsPerView,
     autoplayMs: 6000,
     totalItems: reviews.length,
+    pageMode: true,
   });
 }
 
@@ -664,7 +686,7 @@ function initReviewsCarousel() {
  * @param {number} opts.autoplayMs
  * @param {number} opts.totalItems
  */
-function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView, autoplayMs, totalItems }) {
+function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView, autoplayMs, totalItems, pageMode = false }) {
   let currentIndex = 0;
   let autoplayTimer = null;
   let itemsPerView = getItemsPerView();
@@ -672,6 +694,20 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
 
   /* Cache viewport reference — avoids repeated parentElement lookups */
   const viewport = track.parentElement;
+
+  /* Helper: total navigable pages (pageMode) or positions (slide mode) */
+  function getPageCount() {
+    return pageMode
+      ? Math.ceil(totalItems / itemsPerView)
+      : maxIndex() + 1;
+  }
+
+  /* Helper: which page/position is currently active */
+  function getActivePage() {
+    return pageMode
+      ? Math.min(Math.round(currentIndex / itemsPerView), getPageCount() - 1)
+      : currentIndex;
+  }
 
   /* --- Cached card dimensions (updated on resize, not on every navigation) --- */
   let _cardWidth = 0;
@@ -701,12 +737,14 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
     const offset = currentIndex * (_cardWidth + _gapPx);
     track.style.transform = `translateX(-${offset}px)`;
 
-    if (prevBtn) prevBtn.disabled = currentIndex === 0;
-    if (nextBtn) nextBtn.disabled = currentIndex >= maxIndex();
+    /* Carousel always loops — never disable the arrow buttons */
+    if (prevBtn) prevBtn.disabled = false;
+    if (nextBtn) nextBtn.disabled = false;
 
+    const activePage = getActivePage();
     const dots = dotsContainer.querySelectorAll('.carousel-dot');
     dots.forEach((dot, i) => {
-      const isActive = i === currentIndex;
+      const isActive = i === activePage;
       dot.classList.toggle('active', isActive);
       dot.setAttribute('aria-selected', String(isActive));
     });
@@ -723,9 +761,9 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
     sizeCards();
     applyTransform();
 
-    const pageCount = maxIndex() + 1;
-    if (pageCount !== prevPageCount) {
-      prevPageCount = pageCount;
+    const newPageCount = getPageCount();
+    if (newPageCount !== prevPageCount) {
+      prevPageCount = newPageCount;
       renderDots();
     }
   }
@@ -739,22 +777,46 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
     applyTransform();
   }
 
-  function next() { goTo(currentIndex >= maxIndex() ? 0 : currentIndex + 1); }
-  function prev() { goTo(currentIndex <= 0 ? maxIndex() : currentIndex - 1); }
+  function next() {
+    if (pageMode) {
+      const pg = getActivePage();
+      const total = getPageCount();
+      const nextPg = (pg + 1) % total;
+      goTo(Math.min(nextPg * itemsPerView, maxIndex()));
+    } else {
+      goTo(currentIndex >= maxIndex() ? 0 : currentIndex + 1);
+    }
+  }
+
+  function prev() {
+    if (pageMode) {
+      const pg = getActivePage();
+      const total = getPageCount();
+      const prevPg = (pg - 1 + total) % total;
+      goTo(Math.min(prevPg * itemsPerView, maxIndex()));
+    } else {
+      goTo(currentIndex <= 0 ? maxIndex() : currentIndex - 1);
+    }
+  }
 
   function renderDots() {
-    const pageCount = maxIndex() + 1;
+    const count = getPageCount();
+    const activePage = getActivePage();
     dotsContainer.innerHTML = '';
-    for (let i = 0; i < pageCount; i++) {
+    for (let i = 0; i < count; i++) {
       const dot = document.createElement('button');
-      dot.className = `carousel-dot${i === currentIndex ? ' active' : ''}`;
+      dot.className = `carousel-dot${i === activePage ? ' active' : ''}`;
       dot.setAttribute('role', 'tab');
       dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-      dot.setAttribute('aria-selected', String(i === currentIndex));
-      dot.addEventListener('click', () => { goTo(i); resetAutoplay(); });
+      dot.setAttribute('aria-selected', String(i === activePage));
+      dot.addEventListener('click', () => {
+        const targetIndex = pageMode ? Math.min(i * itemsPerView, maxIndex()) : i;
+        goTo(targetIndex);
+        resetAutoplay();
+      });
       dotsContainer.appendChild(dot);
     }
-    prevPageCount = pageCount;
+    prevPageCount = count;
   }
 
   function startAutoplay() {
