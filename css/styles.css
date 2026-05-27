@@ -1340,6 +1340,63 @@ section {
   border-top: 1px solid rgba(193, 147, 91, 0.12);
 }
 
+/* ---- Bootstrap Tab API compatibility overrides ---- */
+
+/*
+ * Bootstrap sets .tab-content > .tab-pane { display: none }
+ * and .tab-content > .active { display: block }.
+ * We override the fade timing to match our design system.
+ */
+.portfolio-panes.tab-content > .portfolio-pane.tab-pane {
+  /* Bootstrap's default display:none is correct — leave it */
+}
+
+.portfolio-pane.tab-pane.fade {
+  transition: opacity 0.32s ease, transform 0.32s ease;
+  transform: translateY(6px);
+}
+
+.portfolio-pane.tab-pane.fade.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-pane.tab-pane.fade {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Active tab: subtle indicator pip above the underline */
+.portfolio-tab.active::before {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--fiery-coral);
+}
+
+/* Portfolio card: golden border glow on hover */
+.portfolio-card:hover {
+  border-color: rgba(193, 147, 91, 0.38);
+}
+
+/* Portfolio card body — subtle lift on hover */
+.portfolio-card:hover .portfolio-card__body {
+  transform: translateY(-1px);
+  transition: transform var(--transition-med);
+}
+
+.portfolio-card__body {
+  transition: transform var(--transition-med);
+}
+
 
 /* ============================================================
    16. COLLECTIONS CAROUSEL

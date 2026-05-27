@@ -31,7 +31,7 @@
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
 
   <!-- === PRELOAD CRITICAL ASSETS === -->
-  <link rel="preload" as="image" href="assets/img/hero-chocolate.jpg" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/img/hero-chocolate.svg" fetchpriority="high">
 
   <!-- === GOOGLE FONTS === -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -276,7 +276,7 @@
 
       <!-- Background image layer -->
       <div class="hero-bg" aria-hidden="true">
-        <img src="assets/img/hero-chocolate.jpg"
+        <img src="assets/img/hero-chocolate.svg"
              alt=""
              width="1920" height="1080"
              loading="eager"
@@ -339,7 +339,7 @@
           <!-- Image column -->
           <div class="bio-image-wrap reveal">
             <div class="bio-image-frame">
-              <img src="assets/img/bio-portrait.jpg"
+              <img src="assets/img/bio-portrait.svg"
                    alt="Montfrut chocolatier handcrafting artisan bonbons in the Jersey City workshop"
                    width="800" height="1000"
                    loading="lazy"
@@ -414,11 +414,13 @@
           </p>
         </div>
 
-        <!-- Portfolio tabs -->
+        <!-- Portfolio tabs — Bootstrap Tab API with custom styling -->
         <div class="portfolio-tabs-wrap reveal reveal-delay-1">
           <ul class="portfolio-tabs" role="tablist" aria-label="Portfolio categories">
             <li role="presentation">
               <button class="portfolio-tab active" id="tab-corporate" role="tab"
+                      type="button"
+                      data-bs-toggle="tab" data-bs-target="#pane-corporate"
                       aria-selected="true" aria-controls="pane-corporate"
                       data-tab="corporate">
                 Corporate
@@ -427,6 +429,8 @@
             <li class="tab-separator" aria-hidden="true"></li>
             <li role="presentation">
               <button class="portfolio-tab" id="tab-events" role="tab"
+                      type="button"
+                      data-bs-toggle="tab" data-bs-target="#pane-events"
                       aria-selected="false" aria-controls="pane-events"
                       data-tab="events">
                 Events
@@ -435,6 +439,8 @@
             <li class="tab-separator" aria-hidden="true"></li>
             <li role="presentation">
               <button class="portfolio-tab" id="tab-special" role="tab"
+                      type="button"
+                      data-bs-toggle="tab" data-bs-target="#pane-special"
                       aria-selected="false" aria-controls="pane-special"
                       data-tab="special">
                 Special Occasions
@@ -442,10 +448,10 @@
             </li>
           </ul>
 
-          <!-- Tab panes — content is rendered by JS from portfolioItems data -->
-          <div class="portfolio-panes">
+          <!-- Tab panes — Bootstrap tab-content + custom styling -->
+          <div class="portfolio-panes tab-content">
 
-            <div class="portfolio-pane active" id="pane-corporate"
+            <div class="portfolio-pane tab-pane fade show active" id="pane-corporate"
                  role="tabpanel" aria-labelledby="tab-corporate" tabindex="0">
               <p class="pane-intro">
                 Memorable gifts for clients, partners, and teams. Custom-branded chocolate experiences that elevate every business gesture.
@@ -460,8 +466,8 @@
               </div>
             </div>
 
-            <div class="portfolio-pane" id="pane-events"
-                 role="tabpanel" aria-labelledby="tab-events" tabindex="0" hidden>
+            <div class="portfolio-pane tab-pane fade" id="pane-events"
+                 role="tabpanel" aria-labelledby="tab-events" tabindex="0">
               <p class="pane-intro">
                 From intimate gatherings to grand celebrations, our chocolates become the centerpiece of unforgettable moments.
               </p>
@@ -475,8 +481,8 @@
               </div>
             </div>
 
-            <div class="portfolio-pane" id="pane-special"
-                 role="tabpanel" aria-labelledby="tab-special" tabindex="0" hidden>
+            <div class="portfolio-pane tab-pane fade" id="pane-special"
+                 role="tabpanel" aria-labelledby="tab-special" tabindex="0">
               <p class="pane-intro">
                 Birthdays, milestones, and the everyday luxuries worth marking. Chocolates that say what words can't.
               </p>
@@ -965,7 +971,7 @@
 
             <!-- Static map -->
             <div class="contact-map-wrap">
-              <img src="assets/img/map-jc.jpg"
+              <img src="assets/img/map-jc.svg"
                    alt="Map showing Jersey City, New Jersey — Montfrut workshop location"
                    width="600" height="338"
                    loading="lazy"
