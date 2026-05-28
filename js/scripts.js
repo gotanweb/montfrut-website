@@ -927,36 +927,89 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
    ============================================================ */
 
 /**
- * Build the shared Bootstrap carousel HTML for recognition/community modals.
+ * Build Bootstrap carousel HTML for recognition/community modals.
+ * Includes slide indicators, prev/next controls, and a thumbnail strip.
  * @param {string} carouselId — unique id for the carousel element
  * @param {string[]} gallery — array of image src URLs
  * @param {string} title — descriptive title for alt text
  * @returns {string} HTML string
  */
 function buildModalCarouselHtml(carouselId, gallery, title) {
+  if (!gallery.length) return '';
+
+  const indicators = gallery.length > 1 ? `
+    <div class="carousel-indicators">
+      ${gallery.map((_, i) => `
+        <button type="button"
+                data-bs-target="#${carouselId}"
+                data-bs-slide-to="${i}"
+                ${i === 0 ? 'class="active" aria-current="true"' : ''}
+                aria-label="Image ${i + 1}"></button>
+      `).join('')}
+    </div>` : '';
+
   const items = gallery.map((src, i) => `
     <div class="carousel-item${i === 0 ? ' active' : ''}">
       <img src="${src}" alt="${title} — image ${i + 1}" loading="lazy"
-           style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;"
-           onerror="this.parentNode.style.background='#feeed5'">
-    </div>
-  `).join('');
+           class="modal-gallery__img"
+           onerror="this.parentNode.style.background='var(--almond-cream)'">
+    </div>`).join('');
 
   const controls = gallery.length > 1 ? `
-    <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev" aria-label="Previous image">
+    <button class="carousel-control-prev" type="button"
+            data-bs-target="#${carouselId}" data-bs-slide="prev"
+            aria-label="Previous image">
       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
     </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next" aria-label="Next image">
+    <button class="carousel-control-next" type="button"
+            data-bs-target="#${carouselId}" data-bs-slide="next"
+            aria-label="Next image">
       <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    </button>
-  ` : '';
+    </button>` : '';
+
+  const thumbs = gallery.length > 1 ? `
+    <div class="modal-gallery-thumbs" id="${carouselId}-thumbs" role="tablist"
+         aria-label="Image thumbnails">
+      ${gallery.map((src, i) => `
+        <button class="modal-gallery-thumb${i === 0 ? ' active' : ''}"
+                type="button"
+                data-bs-target="#${carouselId}"
+                data-bs-slide-to="${i}"
+                role="tab"
+                aria-label="View image ${i + 1}"
+                aria-selected="${i === 0}">
+          <img src="${src}" alt="${title} — thumbnail ${i + 1}" loading="lazy"
+               onerror="this.parentNode.style.opacity='0.3'">
+        </button>`).join('')}
+    </div>` : '';
 
   return `
-    <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
+    <div id="${carouselId}" class="carousel slide modal-gallery__carousel">
+      ${indicators}
       <div class="carousel-inner">${items}</div>
       ${controls}
     </div>
-  `;
+    ${thumbs}`;
+}
+
+/**
+ * Sync thumbnail active states when the Bootstrap carousel slides.
+ * Must be called after the carousel HTML is inserted into the DOM.
+ * @param {string} carouselId
+ */
+function wireModalThumbSync(carouselId) {
+  const carouselEl = document.getElementById(carouselId);
+  const thumbsEl = document.getElementById(`${carouselId}-thumbs`);
+  if (!carouselEl || !thumbsEl) return;
+
+  carouselEl.addEventListener('slid.bs.carousel', e => {
+    const thumbs = thumbsEl.querySelectorAll('.modal-gallery-thumb');
+    thumbs.forEach((th, i) => {
+      const isActive = i === e.to;
+      th.classList.toggle('active', isActive);
+      th.setAttribute('aria-selected', String(isActive));
+    });
+  });
 }
 
 /**
@@ -974,7 +1027,7 @@ function buildMediaCard(item, dataAttr, modalTarget) {
              data-bs-target="#${modalTarget}"
              tabindex="0"
              role="button"
-             aria-label="Read more: ${item.title}">
+             aria-label="Read more about: ${item.title}">
       <div class="recognition-card__img-wrap">
         <img src="${item.cover}" alt="${item.title}" loading="lazy" width="800" height="500"
              onerror="this.parentNode.style.background='linear-gradient(135deg,#feeed5,#fceac6)'">
@@ -986,8 +1039,7 @@ function buildMediaCard(item, dataAttr, modalTarget) {
         <p class="recognition-card__excerpt">${item.excerpt}</p>
         <span class="recognition-card__readmore">Read more →</span>
       </div>
-    </article>
-  `;
+    </article>`;
 }
 
 /* ---- Recognition ---- */
@@ -1019,35 +1071,47 @@ function initRecognitionGrid() {
 }
 
 /**
- * Inject recognition content into the modal body.
- * @param {Object} data — recognition item object
+ * Inject recognition content into the modal body and update the footer link.
+ * @param {Object} data — recognition item
  */
 function populateRecognitionModal(data) {
-  const title = document.getElementById('recognitionModalTitle');
-  const body = document.getElementById('recognitionModalBody');
+  const titleEl = document.getElementById('recognitionModalTitle');
+  const bodyEl  = document.getElementById('recognitionModalBody');
   const extLink = document.getElementById('recognitionModalExtLink');
 
-  if (title) title.textContent = data.title;
+  if (titleEl) titleEl.textContent = data.title;
 
+  /* Update footer external link: show it only when a real URL is available */
   if (extLink) {
-    extLink.href = data.externalLink;
+    const hasRealLink = data.externalLink && data.externalLink !== '#';
+    extLink.style.display = hasRealLink ? '' : 'none';
+    extLink.href = data.externalLink || '#';
     extLink.innerHTML = `<i class="fa-brands ${data.externalIcon}" aria-hidden="true"></i> ${data.externalLabel}`;
   }
 
-  if (body) {
-    body.innerHTML = `
-      <div class="row g-3">
-        <div class="col-md-7">
-          ${buildModalCarouselHtml('recognitionCarousel', data.gallery, data.title)}
-        </div>
-        <div class="col-md-5">
-          <p style="font-family:var(--font-ui);font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--desert-sand);margin-bottom:0.25rem;">${data.source}</p>
-          <p style="font-family:var(--font-ui);font-size:0.8rem;color:var(--steel-teal);margin-bottom:1rem;">${data.date}</p>
-          <div style="font-family:var(--font-ui);font-size:0.9rem;color:var(--steel-teal);line-height:1.7;">${data.description}</div>
-        </div>
+  if (!bodyEl) return;
+
+  const carouselId = 'recognitionCarousel';
+  bodyEl.innerHTML = `
+    <div class="modal-body-grid">
+      <div class="modal-body-media">
+        ${buildModalCarouselHtml(carouselId, data.gallery, data.title)}
       </div>
-    `;
-  }
+      <div class="modal-body-info">
+        <span class="modal-meta-source">${data.source}</span>
+        <span class="modal-meta-date">${data.date}</span>
+        <div class="modal-meta-desc">${data.description}</div>
+        ${data.externalLink && data.externalLink !== '#' ? `
+        <a href="${data.externalLink}" class="modal-meta-extlink"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="${data.externalLabel} (opens in new tab)">
+          <i class="fa-brands ${data.externalIcon}" aria-hidden="true"></i>
+          ${data.externalLabel}
+        </a>` : ''}
+      </div>
+    </div>`;
+
+  wireModalThumbSync(carouselId);
 }
 
 /* ---- Community ---- */
@@ -1079,40 +1143,40 @@ function initCommunityGrid() {
 
 /**
  * Inject community content into the modal body.
- * @param {Object} data — community item object
+ * @param {Object} data — community item
  */
 function populateCommunityModal(data) {
-  const title = document.getElementById('communityModalTitle');
-  const body = document.getElementById('communityModalBody');
+  const titleEl = document.getElementById('communityModalTitle');
+  const bodyEl  = document.getElementById('communityModalBody');
 
-  if (title) title.textContent = data.title;
+  if (titleEl) titleEl.textContent = data.title;
+  if (!bodyEl) return;
 
-  if (body) {
-    const statsHtml = data.stats ? `
-      <div class="community-stats">
-        ${data.stats.map(s => `
-          <div class="community-stat">
-            <span class="community-stat__value">${s.value}</span>
-            <span class="community-stat__label">${s.label}</span>
-          </div>
-        `).join('')}
+  const carouselId = 'communityCarousel';
+
+  const statsHtml = data.stats?.length ? `
+    <div class="community-stats" role="list" aria-label="Impact statistics">
+      ${data.stats.map(s => `
+        <div class="community-stat" role="listitem">
+          <span class="community-stat__value">${s.value}</span>
+          <span class="community-stat__label">${s.label}</span>
+        </div>`).join('')}
+    </div>` : '';
+
+  bodyEl.innerHTML = `
+    <div class="modal-body-grid">
+      <div class="modal-body-media">
+        ${buildModalCarouselHtml(carouselId, data.gallery, data.title)}
       </div>
-    ` : '';
-
-    body.innerHTML = `
-      <div class="row g-3">
-        <div class="col-md-7">
-          ${buildModalCarouselHtml('communityCarousel', data.gallery, data.title)}
-        </div>
-        <div class="col-md-5">
-          <p style="font-family:var(--font-ui);font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--desert-sand);margin-bottom:0.25rem;">${data.source}</p>
-          <p style="font-family:var(--font-ui);font-size:0.8rem;color:var(--steel-teal);margin-bottom:1rem;">${data.date}</p>
-          ${statsHtml}
-          <div style="font-family:var(--font-ui);font-size:0.9rem;color:var(--steel-teal);line-height:1.7;">${data.description}</div>
-        </div>
+      <div class="modal-body-info">
+        <span class="modal-meta-source">${data.source}</span>
+        <span class="modal-meta-date">${data.date}</span>
+        ${statsHtml}
+        <div class="modal-meta-desc">${data.description}</div>
       </div>
-    `;
-  }
+    </div>`;
+
+  wireModalThumbSync(carouselId);
 }
 
 
