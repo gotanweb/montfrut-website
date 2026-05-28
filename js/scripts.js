@@ -292,19 +292,6 @@ function smoothScrollTo(selector) {
 }
 
 /**
- * Set aria-selected and active class on tabs.
- * @param {Array} tabs
- * @param {Element} activeTab
- */
-function activateTab(tabs, activeTab) {
-  tabs.forEach(tab => {
-    const isActive = tab === activeTab;
-    tab.setAttribute('aria-selected', String(isActive));
-    tab.classList.toggle('active', isActive);
-  });
-}
-
-/**
  * Default responsive items-per-view for carousels.
  * Breakpoints match the site's tablet (576px) and desktop (992px) thresholds.
  * @returns {number}
@@ -313,6 +300,19 @@ function defaultItemsPerView() {
   if (window.innerWidth >= 992) return 3;
   if (window.innerWidth >= 576) return 2;
   return 1;
+}
+
+/**
+ * Visually shake an element to signal an error, then move focus to it.
+ * Shared by the contact form and newsletter form.
+ * @param {HTMLElement} el
+ */
+function shakeElement(el) {
+  el.classList.remove('field-shake');
+  void el.offsetWidth; /* force reflow to restart CSS animation */
+  el.classList.add('field-shake');
+  el.addEventListener('animationend', () => el.classList.remove('field-shake'), { once: true });
+  el.focus();
 }
 
 
@@ -370,6 +370,10 @@ function initHeader() {
     clearTimeout(resizeNavTimer);
     resizeNavTimer = setTimeout(buildNavCache, 200);
   }, { passive: true });
+
+  /* Rebuild once after all images have loaded — lazy images below the fold
+     expand layout and shift section offsets, drifting the active-link highlight */
+  window.addEventListener('load', buildNavCache, { once: true });
 
   const handleScroll = () => {
     header.classList.toggle('scrolled', window.scrollY > 10);
@@ -464,7 +468,9 @@ function initIntersectionReveal() {
 
 /**
  * Wire all anchor links (href starts with #) to smooth scroll.
- * Also handles the portfolio tab CTA links (data-interest).
+ * When fired from inside the mobile offcanvas, defers scroll until the
+ * offcanvas has fully closed to avoid competing with its backdrop animation.
+ * Also handles portfolio tab CTA links (data-interest pre-fill).
  */
 function initSmoothScrollLinks() {
   document.addEventListener('click', e => {
@@ -483,7 +489,15 @@ function initSmoothScrollLinks() {
       if (select) select.value = interest;
     }
 
-    smoothScrollTo(targetId);
+    /* If link is inside the mobile offcanvas, wait for it to close first */
+    const offcanvasEl = link.closest('#mobileNav');
+    if (offcanvasEl) {
+      offcanvasEl.addEventListener('hidden.bs.offcanvas', () => {
+        smoothScrollTo(targetId);
+      }, { once: true });
+    } else {
+      smoothScrollTo(targetId);
+    }
   });
 }
 
@@ -681,7 +695,7 @@ function initReviewsCarousel() {
 
 
 /* ============================================================
-   12. GENERIC CAROUSEL ENGINE
+   11. GENERIC CAROUSEL ENGINE
    ============================================================ */
 
 /**
@@ -927,7 +941,7 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
 
 
 /* ============================================================
-   13. RECOGNITION & COMMUNITY GRIDS
+   12. RECOGNITION & COMMUNITY GRIDS
    ============================================================ */
 
 /**
@@ -1025,13 +1039,13 @@ function wireModalThumbSync(carouselId) {
  */
 function buildMediaCard(item, dataAttr, modalTarget) {
   return `
-    <article class="recognition-card"
-             data-${dataAttr}="${item.id}"
-             data-bs-toggle="modal"
-             data-bs-target="#${modalTarget}"
-             tabindex="0"
-             role="button"
-             aria-label="Read more about: ${item.title}">
+    <div class="recognition-card"
+         data-${dataAttr}="${item.id}"
+         data-bs-toggle="modal"
+         data-bs-target="#${modalTarget}"
+         tabindex="0"
+         role="button"
+         aria-label="Read more about: ${item.title}">
       <div class="recognition-card__img-wrap">
         <img src="${item.cover}" alt="${item.title}" loading="lazy" width="800" height="500"
              onerror="this.parentNode.style.background='linear-gradient(135deg,#feeed5,#fceac6)'">
@@ -1043,7 +1057,7 @@ function buildMediaCard(item, dataAttr, modalTarget) {
         <p class="recognition-card__excerpt">${item.excerpt}</p>
         <span class="recognition-card__readmore">Read more →</span>
       </div>
-    </article>`;
+    </div>`;
 }
 
 /* ---- Recognition ---- */
@@ -1185,7 +1199,7 @@ function populateCommunityModal(data) {
 
 
 /* ============================================================
-   14. CONTACT FORM — Validation + mailto fallback
+   13. CONTACT FORM — Validation + mailto fallback
    ============================================================ */
 
 function initContactForm() {
@@ -1223,23 +1237,13 @@ function initContactForm() {
     form.querySelectorAll('.field-error').forEach(el => { el.textContent = ''; });
   }
 
-  /* Shake a single field and move focus to it */
-  function shakeField(field) {
-    field.classList.remove('field-shake');
-    /* Force reflow so re-adding the class restarts the animation */
-    void field.offsetWidth;
-    field.classList.add('field-shake');
-    field.addEventListener('animationend', () => field.classList.remove('field-shake'), { once: true });
-    field.focus();
-  }
-
   form.addEventListener('submit', e => {
     e.preventDefault();
 
     if (!validateContactForm(form)) {
       /* Shake and focus the first invalid field for immediate feedback */
       const firstError = form.querySelector('[aria-invalid="true"]');
-      if (firstError) shakeField(firstError);
+      if (firstError) shakeElement(firstError);
       return;
     }
 
@@ -1312,10 +1316,6 @@ function validateContactForm(form) {
   const phoneField = form.querySelector('#cf-phone');
   if (phoneField && !validateField(phoneField)) isValid = false;
 
-  if (!isValid) {
-    const firstError = form.querySelector('[aria-invalid="true"]');
-    if (firstError) firstError.focus();
-  }
   return isValid;
 }
 
@@ -1347,22 +1347,13 @@ function validateField(field) {
 
 
 /* ============================================================
-   15. NEWSLETTER FORM — Toast feedback
+   14. NEWSLETTER FORM — Toast feedback
    ============================================================ */
 
 function initNewsletterForm() {
   const form  = document.getElementById('newsletter-form');
   if (!form) return;
   const input = form.querySelector('#nl-email');
-
-  /* Shake helper (reused pattern from contact form) */
-  function shakeInput(el) {
-    el.classList.remove('field-shake');
-    void el.offsetWidth;
-    el.classList.add('field-shake');
-    el.addEventListener('animationend', () => el.classList.remove('field-shake'), { once: true });
-    el.focus();
-  }
 
   form.addEventListener('submit', e => {
     e.preventDefault();
@@ -1373,7 +1364,7 @@ function initNewsletterForm() {
     if (!isValidEmail) {
       if (input) {
         input.setAttribute('aria-invalid', 'true');
-        shakeInput(input);
+        shakeElement(input);
       }
       return;
     }
