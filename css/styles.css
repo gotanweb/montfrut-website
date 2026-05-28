@@ -1555,6 +1555,11 @@ section {
   transform: scale(1.08);
 }
 
+.carousel-arrow-btn:focus-visible {
+  outline: 2px solid var(--desert-sand);
+  outline-offset: 3px;
+}
+
 .carousel-arrow-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
@@ -1565,17 +1570,20 @@ section {
 .carousel-dots {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
   margin-top: 1.25rem;
 }
 
 .carousel-dot {
+  /* Visual size */
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: rgba(193, 147, 91, 0.25);
   border: none;
-  padding: 0;
+  /* Invisible padding expands tap target to ≥44px without changing appearance */
+  padding: 18px;
+  margin: -18px;
   cursor: pointer;
   transition: background var(--transition-fast), transform var(--transition-fast), width var(--transition-fast);
 }
@@ -1584,6 +1592,12 @@ section {
   background: var(--desert-sand);
   width: 24px;
   border-radius: 4px;
+}
+
+.carousel-dot:focus-visible {
+  outline: 2px solid var(--desert-sand);
+  outline-offset: 4px;
+  border-radius: 50%;
 }
 
 
@@ -1619,6 +1633,17 @@ section {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  transition: color var(--transition-fast);
+}
+
+.faq-accordion .accordion-button:hover {
+  color: var(--desert-sand);
+}
+
+.faq-accordion .accordion-button:focus-visible {
+  outline: 2px solid var(--desert-sand);
+  outline-offset: 4px;
+  border-radius: 2px;
 }
 
 .faq-accordion .accordion-button:not(.collapsed) {
@@ -1643,7 +1668,7 @@ section {
   border: 1.5px solid rgba(193, 147, 91, 0.35);
   border-radius: 50%;
   color: var(--desert-sand);
-  transition: transform var(--transition-med), border-color var(--transition-fast);
+  transition: transform var(--transition-med), border-color var(--transition-fast), color var(--transition-fast);
 }
 
 .faq-accordion .accordion-button:not(.collapsed) .faq-icon,
@@ -1799,6 +1824,12 @@ section {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--midnight-blue);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.allergy-tag:hover {
+  background: rgba(193, 147, 91, 0.18);
+  border-color: rgba(193, 147, 91, 0.45);
 }
 
 
@@ -1813,9 +1844,35 @@ section {
   gap: 0.75rem;
 }
 
+/* On mobile the arrows overlay the carousel edges so the viewport uses full width.
+   Arrows are offset inward so they don't clip outside the section container. */
+@media (max-width: 575px) {
+  .reviews-carousel-wrap {
+    display: block; /* viewport takes full row width */
+  }
+
+  .reviews-carousel-wrap .carousel-arrow-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 12px rgba(13, 30, 50, 0.14);
+  }
+
+  .reviews-carousel-wrap .carousel-arrow-btn--prev { left: 0.25rem; }
+  .reviews-carousel-wrap .carousel-arrow-btn--next { right: 0.25rem; }
+}
+
 .reviews-carousel-viewport {
   flex: 1;
   overflow: hidden;
+  cursor: grab;
+}
+
+.reviews-carousel-viewport:active {
+  cursor: grabbing;
 }
 
 .reviews-track {
@@ -1823,6 +1880,7 @@ section {
   gap: 1.25rem;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
+  backface-visibility: hidden;
   align-items: stretch;
 }
 
@@ -1839,9 +1897,16 @@ section {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  transition: transform var(--transition-med), box-shadow var(--transition-med), border-color var(--transition-fast);
 }
 
-/* Decorative quote mark */
+.review-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow-hover);
+  border-color: rgba(193, 147, 91, 0.3);
+}
+
+/* Decorative quote mark — kept behind all card content */
 .review-card::before {
   content: '\201C';
   position: absolute;
@@ -1849,9 +1914,17 @@ section {
   left: 1rem;
   font-family: var(--font-display);
   font-size: 3.5rem;
-  color: rgba(193, 147, 91, 0.22);
+  color: rgba(193, 147, 91, 0.18);
   line-height: 1;
   pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+/* Ensure card content sits above the decorative quote */
+.review-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .review-card__stars {
@@ -1923,7 +1996,9 @@ section {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  margin-top: 0.25rem;
+  /* Push to bottom of flex card regardless of quote length */
+  margin-top: auto;
+  padding-top: 0.5rem;
 }
 
 .review-card__source .fa-google {

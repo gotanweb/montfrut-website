@@ -1870,6 +1870,13 @@ function initReviewsCarousel() {
   const nextBtn = document.getElementById('reviews-next');
   if (!track || !dotsContainer) return;
 
+  /* Viewport needs tabindex so keyboard arrow-key handler can receive focus */
+  const viewport = track.parentElement;
+  viewport.setAttribute('tabindex', '0');
+
+  /* Silence aria-live during autoplay — only announce on explicit user navigation */
+  viewport.setAttribute('aria-live', 'off');
+
   /* Render cards */
   track.innerHTML = reviews.map(rev => `
     <article class="review-card" aria-label="Review by ${rev.author}">
@@ -1965,7 +1972,8 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
 
   /** Apply CSS transform offset and sync button/dot states. */
   function applyTransform() {
-    if (prefersReducedMotion()) track.style.transition = 'none';
+    /* Respect reduced-motion — set to none; restore when not preferred */
+    track.style.transition = prefersReducedMotion() ? 'none' : '';
 
     const offset = currentIndex * (_cardWidth + _gapPx);
     track.style.transform = `translateX(-${offset}px)`;
@@ -1980,6 +1988,8 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
       const isActive = i === activePage;
       dot.classList.toggle('active', isActive);
       dot.setAttribute('aria-selected', String(isActive));
+      /* Keep tabindex in sync with ARIA tab pattern */
+      dot.setAttribute('tabindex', isActive ? '0' : '-1');
     });
   }
 
@@ -2037,15 +2047,19 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
     const activePage = getActivePage();
     dotsContainer.innerHTML = '';
     for (let i = 0; i < count; i++) {
+      const isActive = i === activePage;
       const dot = document.createElement('button');
-      dot.className = `carousel-dot${i === activePage ? ' active' : ''}`;
+      dot.className = `carousel-dot${isActive ? ' active' : ''}`;
       dot.setAttribute('role', 'tab');
       dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-      dot.setAttribute('aria-selected', String(i === activePage));
+      dot.setAttribute('aria-selected', String(isActive));
+      /* ARIA tab pattern: active tab is in tab order; others are skipped */
+      dot.setAttribute('tabindex', isActive ? '0' : '-1');
       dot.addEventListener('click', () => {
         const targetIndex = pageMode ? Math.min(i * itemsPerView, maxIndex()) : i;
         goTo(targetIndex);
         resetAutoplay();
+        announceSlide();
       });
       dotsContainer.appendChild(dot);
     }
@@ -2064,6 +2078,16 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
 
   function pauseAutoplay() { clearInterval(autoplayTimer); }
 
+  /**
+   * Briefly enables aria-live on the viewport so screen readers announce the
+   * new slide on intentional navigation. Kept off during autoplay to avoid flooding.
+   */
+  function announceSlide() {
+    if (!viewport.getAttribute('aria-live')) return;
+    viewport.setAttribute('aria-live', 'polite');
+    setTimeout(() => viewport.setAttribute('aria-live', 'off'), 500);
+  }
+
   /* Shared debounced resize listener */
   let resizeTimer;
   window.addEventListener('resize', () => {
@@ -2080,30 +2104,38 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
     }
   });
 
-  /* Wire arrow buttons */
-  if (prevBtn) prevBtn.addEventListener('click', () => { prev(); resetAutoplay(); });
-  if (nextBtn) nextBtn.addEventListener('click', () => { next(); resetAutoplay(); });
+  /* Wire arrow buttons — announce slide for screen readers */
+  if (prevBtn) prevBtn.addEventListener('click', () => { prev(); resetAutoplay(); announceSlide(); });
+  if (nextBtn) nextBtn.addEventListener('click', () => { next(); resetAutoplay(); announceSlide(); });
 
   /* Pause on hover */
   viewport.addEventListener('mouseenter', pauseAutoplay);
   viewport.addEventListener('mouseleave', startAutoplay);
 
-  /* Touch / swipe support */
+  /* Touch / swipe support
+     Guard: only trigger if horizontal delta dominates vertical delta,
+     preventing false positives during diagonal page-scroll. */
   let touchStartX = 0;
-  track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  let touchStartY = 0;
+  track.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
   track.addEventListener('touchend', e => {
-    const delta = touchStartX - e.changedTouches[0].clientX;
-    if (Math.abs(delta) > 40) {
-      if (delta > 0) next();
+    const deltaX = touchStartX - e.changedTouches[0].clientX;
+    const deltaY = touchStartY - e.changedTouches[0].clientY;
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+      if (deltaX > 0) next();
       else prev();
       resetAutoplay();
+      announceSlide();
     }
   });
 
   /* Keyboard: arrow keys when carousel viewport is focused */
   viewport.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight') { next(); resetAutoplay(); }
-    if (e.key === 'ArrowLeft')  { prev(); resetAutoplay(); }
+    if (e.key === 'ArrowRight') { next(); resetAutoplay(); announceSlide(); }
+    if (e.key === 'ArrowLeft')  { prev(); resetAutoplay(); announceSlide(); }
   });
 
   /* Initial render: size cards and build dots immediately, then apply transform

@@ -607,7 +607,7 @@ function initCollectionsCarousel() {
 
 
 /* ============================================================
-   9. FAQ ICON ROTATION
+   9. FAQ — ICON ROTATION
    ============================================================ */
 
 function initFaqIcons() {
@@ -630,12 +630,21 @@ function initFaqIcons() {
    10. REVIEWS CAROUSEL
    ============================================================ */
 
+
 function initReviewsCarousel() {
   const track = document.getElementById('reviews-track');
   const dotsContainer = document.getElementById('reviews-dots');
   const prevBtn = document.getElementById('reviews-prev');
   const nextBtn = document.getElementById('reviews-next');
   if (!track || !dotsContainer) return;
+
+  /* Viewport needs tabindex so keyboard arrow-key handler receives focus events */
+  const viewport = track.parentElement;
+  viewport.setAttribute('tabindex', '0');
+
+  /* Silence aria-live during autoplay — only announce on explicit user navigation.
+     We toggle it on/off around user-triggered changes in initCarousel via events. */
+  viewport.setAttribute('aria-live', 'off');
 
   /* Render cards */
   track.innerHTML = reviews.map(rev => `
@@ -672,7 +681,7 @@ function initReviewsCarousel() {
 
 
 /* ============================================================
-   10. GENERIC CAROUSEL ENGINE
+   12. GENERIC CAROUSEL ENGINE
    ============================================================ */
 
 /**
@@ -732,7 +741,8 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
 
   /** Apply CSS transform offset and sync button/dot states. */
   function applyTransform() {
-    if (prefersReducedMotion()) track.style.transition = 'none';
+    /* Respect reduced-motion — set to none; restore when not preferred */
+    track.style.transition = prefersReducedMotion() ? 'none' : '';
 
     const offset = currentIndex * (_cardWidth + _gapPx);
     track.style.transform = `translateX(-${offset}px)`;
@@ -747,6 +757,8 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
       const isActive = i === activePage;
       dot.classList.toggle('active', isActive);
       dot.setAttribute('aria-selected', String(isActive));
+      /* Keep tabindex in sync with ARIA tab pattern */
+      dot.setAttribute('tabindex', isActive ? '0' : '-1');
     });
   }
 
@@ -804,15 +816,19 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
     const activePage = getActivePage();
     dotsContainer.innerHTML = '';
     for (let i = 0; i < count; i++) {
+      const isActive = i === activePage;
       const dot = document.createElement('button');
-      dot.className = `carousel-dot${i === activePage ? ' active' : ''}`;
+      dot.className = `carousel-dot${isActive ? ' active' : ''}`;
       dot.setAttribute('role', 'tab');
       dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-      dot.setAttribute('aria-selected', String(i === activePage));
+      dot.setAttribute('aria-selected', String(isActive));
+      /* ARIA tab pattern: active tab is in tab order; others are not */
+      dot.setAttribute('tabindex', isActive ? '0' : '-1');
       dot.addEventListener('click', () => {
         const targetIndex = pageMode ? Math.min(i * itemsPerView, maxIndex()) : i;
         goTo(targetIndex);
         resetAutoplay();
+        announceSlide();
       });
       dotsContainer.appendChild(dot);
     }
@@ -831,6 +847,17 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
 
   function pauseAutoplay() { clearInterval(autoplayTimer); }
 
+  /**
+   * Briefly enables aria-live on the viewport so screen readers announce the
+   * new slide when the user navigates intentionally (arrow click, keyboard, dot).
+   * We keep aria-live="off" during autoplay to avoid screen-reader flooding.
+   */
+  function announceSlide() {
+    if (!viewport.getAttribute('aria-live')) return; // not a live region
+    viewport.setAttribute('aria-live', 'polite');
+    setTimeout(() => viewport.setAttribute('aria-live', 'off'), 500);
+  }
+
   /* Shared debounced resize listener */
   let resizeTimer;
   window.addEventListener('resize', () => {
@@ -847,30 +874,39 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
     }
   });
 
-  /* Wire arrow buttons */
-  if (prevBtn) prevBtn.addEventListener('click', () => { prev(); resetAutoplay(); });
-  if (nextBtn) nextBtn.addEventListener('click', () => { next(); resetAutoplay(); });
+  /* Wire arrow buttons — announce slide for screen readers */
+  if (prevBtn) prevBtn.addEventListener('click', () => { prev(); resetAutoplay(); announceSlide(); });
+  if (nextBtn) nextBtn.addEventListener('click', () => { next(); resetAutoplay(); announceSlide(); });
 
   /* Pause on hover */
   viewport.addEventListener('mouseenter', pauseAutoplay);
   viewport.addEventListener('mouseleave', startAutoplay);
 
-  /* Touch / swipe support */
+  /* Touch / swipe support
+     Guard: only trigger if horizontal delta dominates vertical delta,
+     preventing false positives during diagonal page-scroll. */
   let touchStartX = 0;
-  track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  let touchStartY = 0;
+  track.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
   track.addEventListener('touchend', e => {
-    const delta = touchStartX - e.changedTouches[0].clientX;
-    if (Math.abs(delta) > 40) {
-      if (delta > 0) next();
+    const deltaX = touchStartX - e.changedTouches[0].clientX;
+    const deltaY = touchStartY - e.changedTouches[0].clientY;
+    /* Require horizontal gesture to dominate and exceed 40px threshold */
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+      if (deltaX > 0) next();
       else prev();
       resetAutoplay();
+      announceSlide();
     }
   });
 
   /* Keyboard: arrow keys when carousel viewport is focused */
   viewport.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight') { next(); resetAutoplay(); }
-    if (e.key === 'ArrowLeft')  { prev(); resetAutoplay(); }
+    if (e.key === 'ArrowRight') { next(); resetAutoplay(); announceSlide(); }
+    if (e.key === 'ArrowLeft')  { prev(); resetAutoplay(); announceSlide(); }
   });
 
   /* Initial render: size cards and build dots immediately, then apply transform
@@ -887,7 +923,7 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
 
 
 /* ============================================================
-   11. RECOGNITION & COMMUNITY GRIDS
+   13. RECOGNITION & COMMUNITY GRIDS
    ============================================================ */
 
 /**
@@ -1081,7 +1117,7 @@ function populateCommunityModal(data) {
 
 
 /* ============================================================
-   12. CONTACT FORM — Validation + mailto fallback
+   14. CONTACT FORM — Validation + mailto fallback
    ============================================================ */
 
 function initContactForm() {
@@ -1186,7 +1222,7 @@ function validateField(field) {
 
 
 /* ============================================================
-   13. NEWSLETTER FORM — Toast feedback
+   15. NEWSLETTER FORM — Toast feedback
    ============================================================ */
 
 function initNewsletterForm() {
