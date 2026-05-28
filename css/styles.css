@@ -1436,6 +1436,26 @@ section {
   gap: 0.75rem;
 }
 
+/* On mobile the arrows overlay the carousel edges so the viewport uses full width.
+   Arrows are offset inward so they don't clip outside the section container. */
+@media (max-width: 575px) {
+  .collections-carousel-wrap {
+    display: block;
+  }
+
+  .collections-carousel-wrap .carousel-arrow-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 12px rgba(13, 30, 50, 0.14);
+  }
+
+  .collections-carousel-wrap .carousel-arrow-btn--prev { left: 0.25rem; }
+  .collections-carousel-wrap .carousel-arrow-btn--next { right: 0.25rem; }
+}
+
 .collections-carousel-viewport {
   flex: 1;
   overflow: hidden;
@@ -2173,6 +2193,15 @@ section {
   color: rgba(254, 238, 213, 0.35);
 }
 
+/* Custom chevron for the native select — replaces the browser's removed indicator */
+.form-select-custom {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c1935b' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px 8px;
+  padding-right: 2.5rem;
+}
+
 .form-select-custom option {
   background: var(--midnight-blue);
   color: var(--almond-cream);
@@ -2397,6 +2426,13 @@ section {
   color: rgba(193, 147, 91, 0.3);
   font-size: 1.2rem;
   line-height: 1;
+}
+
+/* Hide separators when badges may wrap onto a new line */
+@media (max-width: 575px) {
+  .trust-dot {
+    display: none;
+  }
 }
 
 
@@ -2742,40 +2778,6 @@ section {
   max-width: 400px;
   margin-inline: auto;
 }
-
-/* Community stats banner (inside modal) */
-.community-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin: 1.25rem 0;
-  padding: 1rem;
-  background: rgba(252, 234, 198, 0.5);
-  border-radius: 10px;
-  border: 1px solid rgba(193, 147, 91, 0.2);
-}
-
-.community-stat {
-  text-align: center;
-}
-
-.community-stat__value {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--midnight-blue);
-}
-
-.community-stat__label {
-  font-family: var(--font-ui);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--steel-teal);
-}
-
 
 /* ============================================================
    23. TOAST
@@ -3274,16 +3276,6 @@ section {
 #portfolio,
 #recognition {
   border-top: 1px solid rgba(193, 147, 91, 0.14);
-}
-
-/* --- Portfolio tab fade: reduced motion override -------------- */
-.portfolio-pane.tab-pane.fade {
-  transition: opacity 0.28s ease, transform 0.28s ease;
-  transform: translateY(4px);
-}
-.portfolio-pane.tab-pane.fade.show {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* --- Portfolio tab pip: ensure visibility --------------------- */

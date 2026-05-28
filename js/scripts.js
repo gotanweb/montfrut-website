@@ -704,6 +704,11 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
   /* Cache viewport reference — avoids repeated parentElement lookups */
   const viewport = track.parentElement;
 
+  /* Ensure viewport is keyboard-focusable and has a live region for announcements.
+     Only set if the caller hasn't already done so (e.g. initReviewsCarousel). */
+  if (!viewport.hasAttribute('tabindex')) viewport.setAttribute('tabindex', '0');
+  if (!viewport.hasAttribute('aria-live')) viewport.setAttribute('aria-live', 'off');
+
   /* Helper: total navigable pages (pageMode) or positions (slide mode) */
   function getPageCount() {
     return pageMode
@@ -853,7 +858,6 @@ function initCarousel({ track, dotsContainer, prevBtn, nextBtn, getItemsPerView,
    * We keep aria-live="off" during autoplay to avoid screen-reader flooding.
    */
   function announceSlide() {
-    if (!viewport.getAttribute('aria-live')) return; // not a live region
     viewport.setAttribute('aria-live', 'polite');
     setTimeout(() => viewport.setAttribute('aria-live', 'off'), 500);
   }
