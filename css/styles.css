@@ -1378,6 +1378,10 @@ section {
   /* Bootstrap's default display:none is correct — leave it */
 }
 
+.portfolio-pane.tab-pane {
+  scroll-margin-top: calc(var(--header-h-mobile) + 0.5rem);
+}
+
 .portfolio-pane.tab-pane.fade {
   transition: opacity 0.32s ease, transform 0.32s ease;
   transform: translateY(6px);
@@ -2002,7 +2006,7 @@ section {
 
 .review-card__meta small {
   font-family: var(--font-ui);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--steel-teal);
 }
 
@@ -2216,8 +2220,12 @@ section {
 
 .form-input-custom[aria-invalid="true"],
 .form-select-custom[aria-invalid="true"],
-.form-textarea-custom[aria-invalid="true"] {
+.form-textarea-custom[aria-invalid="true"],
+.form-input-custom[aria-invalid="true"]:focus,
+.form-select-custom[aria-invalid="true"]:focus,
+.form-textarea-custom[aria-invalid="true"]:focus {
   border-color: var(--fiery-coral);
+  box-shadow: 0 0 0 3px rgba(242, 88, 80, 0.14);
 }
 
 .form-textarea-custom {
@@ -2819,6 +2827,10 @@ section {
     scroll-margin-top: var(--header-h-tablet);
   }
 
+  .portfolio-pane.tab-pane {
+    scroll-margin-top: calc(var(--header-h-tablet) + 0.5rem);
+  }
+
   .section-container {
     padding-inline: 1.5rem;
   }
@@ -2884,6 +2896,10 @@ section {
   section {
     scroll-margin-top: var(--header-h-desktop);
     padding-block: var(--section-py-desktop);
+  }
+
+  .portfolio-pane.tab-pane {
+    scroll-margin-top: calc(var(--header-h-desktop) + 0.5rem);
   }
 
   .section-container {
@@ -3327,4 +3343,156 @@ section {
   .portfolio-card__body {
     padding: 1rem 1rem 1.25rem;
   }
+}
+
+
+/* ============================================================
+   31. FORM UX — Premium validation states & micro-interactions
+   ============================================================ */
+
+/* --- Valid state: green ring — only for required fields
+       after user interaction (aria-invalid is absent on untouched) ------ */
+.form-input-custom[required][aria-invalid="false"],
+.form-select-custom[required][aria-invalid="false"],
+.form-textarea-custom[required][aria-invalid="false"] {
+  border-color: rgba(37, 166, 106, 0.55);
+  box-shadow: 0 0 0 3px rgba(37, 166, 106, 0.08);
+}
+
+/* --- Field error: slide-in animation --- */
+@keyframes errSlide {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.field-error:not(:empty) {
+  animation: errSlide 0.18s ease forwards;
+}
+
+/* --- Field shake on failed submit attempt --- */
+@keyframes shake-x {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+
+.field-shake {
+  animation: shake-x 0.38s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* --- Submit button: disabled / loading states --- */
+.btn-submit[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-submit.is-loading {
+  gap: 0.7rem;
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(13, 30, 50, 0.2);
+  border-top-color: var(--blood-crimson);
+  border-radius: 50%;
+  animation: btn-spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
+/* --- Contact info cards: hover lift ----------------------- */
+.contact-info-card {
+  transition:
+    background  var(--transition-fast),
+    border-color var(--transition-fast),
+    transform   var(--transition-fast),
+    box-shadow  var(--transition-fast);
+}
+
+.contact-info-card:hover {
+  background: rgba(255, 253, 247, 0.11);
+  border-color: rgba(193, 147, 91, 0.34);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(13, 30, 50, 0.14);
+}
+
+/* --- WhatsApp button: accessible focus ring --------------- */
+.btn-whatsapp-contact:focus-visible {
+  outline: 3px solid #25D366;
+  outline-offset: 3px;
+  border-radius: var(--card-radius);
+}
+
+/* --- Trust strip: badge hover ----------------------------- */
+.trust-badge {
+  transition:
+    border-color var(--transition-fast),
+    background   var(--transition-fast),
+    color        var(--transition-fast);
+  cursor: default;
+}
+
+.trust-badge:hover {
+  border-color: rgba(193, 147, 91, 0.5);
+  background: rgba(193, 147, 91, 0.09);
+}
+
+/* --- Newsletter input: error shake + success state -------- */
+.newsletter-input[aria-invalid="true"] {
+  border-color: var(--fiery-coral);
+  box-shadow: 0 0 0 3px rgba(242, 88, 80, 0.12);
+}
+
+.newsletter-input.is-success {
+  border-color: rgba(37, 166, 106, 0.5);
+}
+
+/* --- Map block: subtle hover (interactive feel) ----------- */
+.contact-map-wrap {
+  transition: opacity var(--transition-fast);
+}
+
+.contact-map-wrap:hover .contact-map {
+  opacity: 1;
+}
+
+/* --- Form select: ensure custom arrow on valid/error states  */
+.form-select-custom[aria-invalid="true"] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23f25850' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.form-select-custom[required][aria-invalid="false"] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2325a66a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* --- Toast: slide-in from bottom-right -------------------- */
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(1rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.montfrut-toast.show {
+  animation: toastSlideIn 0.28s ease forwards;
+}
+
+/* --- Contact form column: add spacing below on mobile ----- */
+@media (max-width: 991px) {
+  .contact-info-col {
+    margin-bottom: 0;
+  }
+}
+
+/* --- Accessible focus ring for form inputs (supplement :focus-visible) */
+.form-input-custom:focus-visible,
+.form-select-custom:focus-visible,
+.form-textarea-custom:focus-visible {
+  outline: none; /* box-shadow handles the visible ring */
 }

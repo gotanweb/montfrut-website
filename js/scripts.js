@@ -1192,26 +1192,77 @@ function initContactForm() {
   const form = document.getElementById('contact-form');
   if (!form) return;
 
+  /* Prevent past date selection — set today as the earliest allowed date */
+  const dateField = form.querySelector('#cf-eventdate');
+  if (dateField) dateField.min = new Date().toISOString().split('T')[0];
+
+  const submitBtn = form.querySelector('.btn-submit');
+  /* Capture original inner HTML so we can restore it after loading */
+  const originalBtnHTML = submitBtn ? submitBtn.innerHTML : '';
+
+  /* Toggle submit button between normal / loading states */
+  function setSubmitLoading(loading) {
+    if (!submitBtn) return;
+    if (loading) {
+      submitBtn.disabled = true;
+      submitBtn.classList.add('is-loading');
+      submitBtn.innerHTML =
+        '<span class="btn-label">Sending…</span>' +
+        '<span class="btn-spinner" aria-hidden="true"></span>';
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('is-loading');
+      submitBtn.innerHTML = originalBtnHTML;
+    }
+  }
+
+  /* Reset the form AND clear all residual validation states */
+  function fullReset() {
+    form.reset();
+    form.querySelectorAll('[aria-invalid]').forEach(f => f.removeAttribute('aria-invalid'));
+    form.querySelectorAll('.field-error').forEach(el => { el.textContent = ''; });
+  }
+
+  /* Shake a single field and move focus to it */
+  function shakeField(field) {
+    field.classList.remove('field-shake');
+    /* Force reflow so re-adding the class restarts the animation */
+    void field.offsetWidth;
+    field.classList.add('field-shake');
+    field.addEventListener('animationend', () => field.classList.remove('field-shake'), { once: true });
+    field.focus();
+  }
+
   form.addEventListener('submit', e => {
     e.preventDefault();
-    if (!validateContactForm(form)) return;
+
+    if (!validateContactForm(form)) {
+      /* Shake and focus the first invalid field for immediate feedback */
+      const firstError = form.querySelector('[aria-invalid="true"]');
+      if (firstError) shakeField(firstError);
+      return;
+    }
 
     /* TODO: Integrate with Formspree/EmailJS/Netlify Forms for production.
        Recommended: https://formspree.io — add action="https://formspree.io/f/YOUR_ID" */
 
-    /* Fallback: build a mailto: link */
-    const name     = form.querySelector('#cf-name').value.trim();
-    const email    = form.querySelector('#cf-email').value.trim();
-    const phone    = form.querySelector('#cf-phone').value.trim();
-    const interest = form.querySelector('#cf-interest').value;
+    setSubmitLoading(true);
+
+    /* Read values after validation passes */
+    const name      = form.querySelector('#cf-name').value.trim();
+    const email     = form.querySelector('#cf-email').value.trim();
+    const phone     = form.querySelector('#cf-phone').value.trim();
+    const interest  = form.querySelector('#cf-interest').value;
     const eventdate = form.querySelector('#cf-eventdate').value;
-    const message  = form.querySelector('#cf-message').value.trim();
+    const message   = form.querySelector('#cf-message').value.trim();
 
     const subject = encodeURIComponent(`[Montfrut Contact] ${interest} — ${name}`);
-    const body = encodeURIComponent(
-      `Name: ${name}\nEmail: ${email}\nPhone: ${phone || 'Not provided'}\nInterest: ${interest}\nEvent Date: ${eventdate || 'Not specified'}\n\nMessage:\n${message}`
+    const body    = encodeURIComponent(
+      `Name: ${name}\nEmail: ${email}\nPhone: ${phone || 'Not provided'}\nInterest: ${interest}` +
+      `\nEvent Date: ${eventdate || 'Not specified'}\n\nMessage:\n${message}`
     );
 
+    /* Open mail client (mailto: fallback — does not navigate away) */
     window.location.href = `mailto:info@montfrut.com?subject=${subject}&body=${body}`;
 
     /* Show success modal */
@@ -1220,14 +1271,20 @@ function initContactForm() {
       bootstrap.Modal.getOrCreateInstance(successModal).show();
     }
 
-    form.reset();
+    /* Restore button and clean up form after a brief delay so mailto can fire */
+    setTimeout(() => {
+      setSubmitLoading(false);
+      fullReset();
+    }, 800);
   });
 
   /* Cache required fields once — avoids a second querySelectorAll on submit */
   const requiredFields = form.querySelectorAll('[required]');
   const phoneField = form.querySelector('#cf-phone');
 
-  /* Attach blur + input validation to a single field */
+  /* Attach blur + live-input validation to a single field.
+     Live re-validation only fires once the field is already in an error state,
+     so the green border doesn't appear until the user has left the field. */
   function wireField(field) {
     field.addEventListener('blur', () => validateField(field));
     field.addEventListener('input', () => {
@@ -1294,42 +1351,61 @@ function validateField(field) {
    ============================================================ */
 
 function initNewsletterForm() {
-  const form = document.getElementById('newsletter-form');
+  const form  = document.getElementById('newsletter-form');
   if (!form) return;
   const input = form.querySelector('#nl-email');
+
+  /* Shake helper (reused pattern from contact form) */
+  function shakeInput(el) {
+    el.classList.remove('field-shake');
+    void el.offsetWidth;
+    el.classList.add('field-shake');
+    el.addEventListener('animationend', () => el.classList.remove('field-shake'), { once: true });
+    el.focus();
+  }
 
   form.addEventListener('submit', e => {
     e.preventDefault();
 
-    const isValidEmail = input?.value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value);
+    const val          = input?.value?.trim() ?? '';
+    const isValidEmail = val && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+
     if (!isValidEmail) {
-      /* Show visual error state via aria-invalid (CSS rule targets this) */
       if (input) {
         input.setAttribute('aria-invalid', 'true');
-        input.focus();
+        shakeInput(input);
       }
       return;
     }
 
-    /* Clear error state */
-    if (input) input.setAttribute('aria-invalid', 'false');
+    /* Mark as success before reset so CSS transition fires briefly */
+    if (input) {
+      input.setAttribute('aria-invalid', 'false');
+      input.classList.add('is-success');
+    }
 
     /* TODO: Integrate with Mailchimp/ConvertKit for production. */
 
-    /* Show Bootstrap toast */
     const toastEl = document.getElementById('newsletterToast');
     if (toastEl && window.bootstrap) {
-      bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 4000 }).show();
+      bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 4500 }).show();
     }
 
-    form.reset();
+    /* Reset after a short delay so the green border is briefly visible */
+    setTimeout(() => {
+      form.reset();
+      if (input) {
+        input.removeAttribute('aria-invalid');
+        input.classList.remove('is-success');
+      }
+    }, 350);
   });
 
-  /* Clear error state as soon as the user starts correcting input */
+  /* Live correction: clear error as soon as the user starts typing */
   if (input) {
     input.addEventListener('input', () => {
       if (input.getAttribute('aria-invalid') === 'true') {
-        input.setAttribute('aria-invalid', 'false');
+        input.removeAttribute('aria-invalid');
       }
     });
   }
