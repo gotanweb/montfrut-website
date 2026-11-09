@@ -14,17 +14,17 @@ console.log('Montfrut Catalog: scripts.js is loading...');
 const products = [
   {
     id: 1,
-    name: 'Hazelnut Praline Bonbons',
+    name: 'Mendiant Trio',
     category: 'Chocolate Bonbons',
     flavor: 'Hazelnut',
     shortDescription: 'Smooth hazelnut praline enrobed in rich dark chocolate.',
     longDescription: 'A timeless classic reimagined. Our Hazelnut Praline Bonbons are crafted from slow-roasted Piedmont hazelnuts blended into a silky praline cream, then hand-dipped in 70% single-origin dark chocolate. Each piece is finished with a delicate hazelnut shard on top, offering a perfect balance of crunch, sweetness, and depth.',
-    price: 24.00,
-    image: 'assets/img/hazelnut_bonbons.png',
+    price: 25.00,
+    image: 'assets/img/mendiant-trio-01.png',
     galleryImages: [
-      'assets/img/hazelnut_bonbons.png',
-      'assets/img/dark_chocolate_bar.png',
-      'assets/img/classic_truffles.png'
+      'assets/img/mendiant-trio-02.png',
+      'assets/img/mendiant-trio-03.png',
+      'assets/img/mendiant-trio-04.png'
     ],
     allergyTags: ['Dairy', 'Nuts'],
     flavorNotes: ['Roasted Hazelnut', 'Dark Cacao', 'Caramelized Sugar'],
