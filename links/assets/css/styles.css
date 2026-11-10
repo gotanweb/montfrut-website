@@ -45,6 +45,7 @@ body {
   color: var(--blood-crimson);
   background-color: var(--vanilla-cream);
   background-image: url('../img/bg-mobile.png');
+  background-image: image-set(url('../img/bg-mobile.webp') type('image/webp'), url('../img/bg-mobile.png') type('image/png'));
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
@@ -402,6 +403,7 @@ img {
 @media (min-width: 576px) {
   body {
     background-image: url('../img/bg-tablet.png');
+    background-image: image-set(url('../img/bg-tablet.webp') type('image/webp'), url('../img/bg-tablet.png') type('image/png'));
   }
 
   .page-wrap {
@@ -467,6 +469,7 @@ img {
 @media (min-width: 992px) {
   body {
     background-image: url('../img/bg-desktop2.png');
+    background-image: image-set(url('../img/bg-desktop2.webp') type('image/webp'), url('../img/bg-desktop2.png') type('image/png'));
   }
 
   .page-wrap {

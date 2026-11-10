@@ -10,11 +10,11 @@ Referencia de esta entrega: `main`, commit base `7c97600dc5c6e5fee2a8c71274e055b
 | LNK-001 | Bitácora e índice documental | Links | Media | Completada |
 | LNK-002 | Rutas internas y navegación | Links | Alta | Completada; validación local OK |
 | LNK-003 | Detección y persistencia de idioma | Links | Alta | Implementada; navegador pendiente |
-| LNK-004 | Optimización de imágenes | Links | Alta | Pendiente |
-| LNK-005 | Enlaces externos | Links | Media | Pendiente |
-| LNK-006 | Open Graph, favicon y metadatos sociales | Links | Media | Pendiente |
-| LNK-007 | SEO bilingüe y datos estructurados | Links | Media | Pendiente |
-| LNK-008 | vCard y datos de contacto | Links | Media | Pendiente |
+| LNK-004 | Optimización de imágenes | Links | Alta | Implementada; validación local OK |
+| LNK-005 | Enlaces externos | Links | Media | Implementada; 403 pendientes |
+| LNK-006 | Open Graph, favicon y metadatos sociales | Links | Media | Implementada; previsualización publicada pendiente |
+| LNK-007 | SEO bilingüe y datos estructurados | Links | Media | Implementada; validación publicada pendiente |
+| LNK-008 | vCard y datos de contacto | Links | Media | Implementada; importación en dispositivos pendiente |
 | LNK-009 | Accesibilidad y contraste | Links | Media | Pendiente |
 | LNK-010 | Animaciones y dimensiones | Links | Baja | Pendiente |
 | LNK-011 | Dependencias externas | Links | Media | Pendiente |
@@ -49,3 +49,39 @@ Referencia de esta entrega: `main`, commit base `7c97600dc5c6e5fee2a8c71274e055b
 - Se mantienen los hallazgos de AUD-001 sobre fondos, YouTube, imagen social ausente, SEO bilingüe, datos estructurados, vCard, accesibilidad, animaciones y dependencias.
 - Los recursos alojados en Links siguen siendo utilizados por otros módulos y no se movieron ni eliminaron.
 - Pendientes pruebas en navegador y validación del entorno Hostinger, incluida la conservación del origen `https://montfrut.com` sin redirecciones a otro host; sin cambios en `.htaccess`, ramas, commits o despliegues.
+
+## 2026-11-09 — IMP-002 / LNK-004 a LNK-008
+
+- Antes de los cambios, guardado IMP-001 en el commit local `e53bbc9` (`feat(links): implement language preference and navigation`), exclusivamente con sus cuatro archivos autorizados. Sin push. El registro anterior describe el estado de aquella entrega y se conserva intacto.
+- LNK-004: creadas tres copias WebP con PHP/GD ya instalado, calidad 88; reducidas las dimensiones de tablet y escritorio sin cambiar la composición. `links/assets/css/styles.css` selecciona WebP mediante `image-set()` y conserva respaldo PNG. Originales compartidos intactos.
+
+| Fondo | Original, bytes | WebP, bytes | Dimensiones WebP | Ahorro |
+| --- | ---: | ---: | --- | ---: |
+| `bg-mobile` | 1.564.223 | 74.970 | 941 × 1672 | 95,21 % |
+| `bg-tablet` | 6.098.722 | 91.556 | 1280 × 1714 | 98,50 % |
+| `bg-desktop2` | 6.334.649 | 91.874 | 1920 × 1072 | 98,55 % |
+| Total de variantes | 13.997.594 | 258.400 | No se descargan todas por visita | 98,15 % |
+
+- LNK-005: eliminado por decisión aprobada el botón de entrevista de YouTube en ES/EN. Quedan cinco botones principales en la misma columna flexible y con el mismo espaciado; la entrevista no se implementó en Website. Los otros diez enlaces de cada página, incluidos los mensajes de WhatsApp, permanecen idénticos.
+- LNK-006: creados `links/assets/img/montfrut-og.jpg` (1200 × 630, 81.245 bytes) y `favicon.png` (192 × 192, 9.704 bytes) con los gráficos existentes. La composición social copia el logo a tamaño nativo; el icono lo reduce proporcionalmente sobre transparencia. Sin rediseñar ni sobrescribir el logo. Ambos HTML usan la misma imagen social mediante URL absoluta, tipo, dimensiones y textos alternativos localizados, y declaran el favicon.
+- LNK-007: añadidos `hreflang` recíprocos ES/EN y `x-default`, coherentes con canonical y `og:url`. Sustituido `LocalBusiness` por una única `Organization` con el mismo `@id` en ambas páginas; retirado el microdato duplicado. Solo datos existentes, sin dirección inventada; el logo estructurado usa el icono cuadrado. Referencias: [Organization](https://developers.google.com/search/docs/appearance/structured-data/organization), [idiomas](https://developers.google.com/search/docs/specialty/international/localized-versions) e [image-set](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/image/image-set).
+- LNK-008: correo aprobado `montfrut@gmail.com` en ambas entidades JSON-LD y vCard; añadido `N:Guerra;Aniuska;;;` y preservados CRLF y los restantes datos de contacto. El correo corporativo podrá incorporarse posteriormente.
+- Archivos modificados: esta bitácora, ambos HTML, `links/assets/css/styles.css` y `links/contact.vcf`. Creados los cinco recursos gráficos anteriores. Ningún archivo eliminado; JS de IMP-001, Website, Catálogo y recursos originales sin cambios.
+
+### Validaciones y pendientes de IMP-002
+
+- OK: estructura HTML básica y atributos, JSON-LD válido, una entidad por idioma, identidad compartida, metadatos coherentes y alternates recíprocos. Rutas, imágenes, favicon, logo y recursos CSS locales existentes. Comprobación local, sin certificación de un validador SEO remoto.
+- OK: comparación de todos los enlaces restantes y su contenido con IMP-001; ausencia del botón de entrevista; CSS solo incorpora tres selecciones WebP/PNG; comparación de vCard confirma que únicamente se añadió `N`. Campos obligatorios, componentes de `N`/`ADR`, longitudes y CRLF correctos.
+- OK: los cinco gráficos nuevos se decodifican; tamaños, formatos y dimensiones verificados y revisión visual realizada. `node --check` de ambos JS y `git diff --check` satisfactorios; lógica de idiomas y módulos protegidos sin diferencias. Sin instalaciones de paquetes.
+- HTTP HEAD: Website, Catálogo, Instagram, Facebook y ambas rutas de WhatsApp respondieron 200. LinkedIn y TikTok respondieron 403: no se consideran rotos, quedan pendientes de verificación manual. Un 200 no certifica titularidad ni interacción completa.
+- Navegador: `The browser access host is unavailable`. Pendientes presentación de la página con cinco botones, selección/descarga efectiva de WebP y legibilidad del favicon pequeño. La revisión visual de archivos no sustituye estas pruebas.
+- Pendientes previsualizaciones sociales, rastreo/validadores sobre URLs publicadas e importación de vCard en iOS, Android y Outlook. Recursos nuevos aún sin publicar; LNK-009 a LNK-013 continúan pendientes.
+- Git: IMP-002 queda sin commit y sin cambios preparados; sin push, despliegues ni cambios de rama o `.htaccess`.
+
+## 2026-11-09 — IMP-002A / Corrección de LNK-006
+
+- Conservado el favicon proporcionado por el propietario: PNG de 20 × 20, sin ampliarlo ni modificarlo; `sizes="20x20"` en ES/EN.
+- Copiado el recurso existente `montfrut-og-sin-logos.jpg` a `montfrut-og.jpg`, sin recompresión ni generación, para usar la imagen aprobada sin logotipos conservando la URL. JPEG de 1200 × 630; textos `og:image:alt` y `twitter:image:alt` actualizados en ambos idiomas.
+- `Organization.logo` apunta al logo original existente `https://montfrut.com/links/assets/img/montfrut-logo.png` (250 × 90), sin alterar su diseño. Limitación: su altura no alcanza el mínimo de 112 px indicado por Google para logos estructurados; no se generó ni amplió un recurso para resolverlo.
+- Archivos: ambos HTML, `links/assets/img/montfrut-og.jpg` y esta bitácora. Registros anteriores conservados. Dimensiones, existencia, coherencia bilingüe, JSON-LD y `git diff --check` verificados; favicon y otros archivos ajenos a estos ajustes intactos.
+- Pendientes: previsualización social publicada y un recurso de logo con dimensiones adecuadas para Google. Sin dependencias, commits ni publicación.
