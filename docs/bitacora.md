@@ -15,11 +15,11 @@ Referencia de esta entrega: `main`, commit base `7c97600dc5c6e5fee2a8c71274e055b
 | LNK-006 | Open Graph, favicon y metadatos sociales | Links | Media | Implementada; previsualización publicada pendiente |
 | LNK-007 | SEO bilingüe y datos estructurados | Links | Media | Implementada; validación publicada pendiente |
 | LNK-008 | vCard y datos de contacto | Links | Media | Implementada; importación en dispositivos pendiente |
-| LNK-009 | Accesibilidad y contraste | Links | Media | Pendiente |
-| LNK-010 | Animaciones y dimensiones | Links | Baja | Pendiente |
-| LNK-011 | Dependencias externas | Links | Media | Pendiente |
-| LNK-012 | Integridad de recursos compartidos | Links | Alta | Pendiente |
-| LNK-013 | Validaciones finales | Links | Alta | Pendiente |
+| LNK-009 | Accesibilidad y contraste | Links | Media | Implementada; teclado y visual pendientes |
+| LNK-010 | Animaciones y dimensiones | Links | Baja | Implementada; navegador pendiente |
+| LNK-011 | Dependencias externas | Links | Media | Completada; SRI verificado |
+| LNK-012 | Integridad de recursos compartidos | Links | Alta | Verificada localmente; acoplamiento documentado |
+| LNK-013 | Validaciones finales | Links | Alta | Validación local completada; producción pendiente |
 
 ## Registro cronológico
 
@@ -85,3 +85,23 @@ Referencia de esta entrega: `main`, commit base `7c97600dc5c6e5fee2a8c71274e055b
 - `Organization.logo` apunta al logo original existente `https://montfrut.com/links/assets/img/montfrut-logo.png` (250 × 90), sin alterar su diseño. Limitación: su altura no alcanza el mínimo de 112 px indicado por Google para logos estructurados; no se generó ni amplió un recurso para resolverlo.
 - Archivos: ambos HTML, `links/assets/img/montfrut-og.jpg` y esta bitácora. Registros anteriores conservados. Dimensiones, existencia, coherencia bilingüe, JSON-LD y `git diff --check` verificados; favicon y otros archivos ajenos a estos ajustes intactos.
 - Pendientes: previsualización social publicada y un recurso de logo con dimensiones adecuadas para Google. Sin dependencias, commits ni publicación.
+
+## 2026-11-09 — IMP-003 / LNK-009 a LNK-012
+
+- Guardados IMP-002 e IMP-002A en el commit local `f9fc10d` (`fix(links): optimize assets and update metadata`), con sus diez archivos verificados. Excluidos `revision-imp002.txt`, los favicon de Website/Catálogo y las imágenes alternativas no utilizadas; permanecen intactos y sin seguimiento. Sin push.
+- LNK-009: iconos sociales azul oscuro sobre crema (14,19:1; hover blanco/coral 3,34:1); foco de dos colores en botones, selector y redes; selector opaco con contraste 14,19:1 normal y 10,93:1 hover. Selector de 44 px de alto en el flujo para evitar superposiciones; texto de 12,8 px. Títulos de botones y descripciones visibles de al menos 14 px a tamaño raíz de 16 px. Incorporado `h1` alrededor del logo, sin duplicar su nombre; marcado el idioma del selector y las banderas/iconos decorativos.
+- LNK-010: atributos del logo corregidos a 250 × 90, sin cambiar el archivo ni su ancho visual CSS. Animación existente aplicada a cada botón, sin animar también su contenedor. Relleno `backwards` permite recuperar transformaciones normales al finalizar y evita contenido permanentemente oculto si no se anima. La entrada se cancela al enfocar/pulsar para no repetirse al interactuar. Movimiento reducido desactiva animaciones, transiciones, desplazamiento suave y transformaciones; JS omite los efectos en ese modo.
+- LNK-011: retirado Bootstrap JS tras confirmar ausencia de componentes y llamadas en Links. Conservados Bootstrap CSS 5.3.3, Font Awesome 6.5.2 y Google Fonts. SRI SHA-384 y `crossorigin="anonymous"` en ambas hojas versionadas; hashes calculados leyendo cada CDN y contrastados con unpkg, con coincidencia de SHA-384 y longitud y CORS `*`. Google Fonts no recibe un hash fijo porque su CSS no está fijado a una versión y puede variar por cliente. Sin paquetes nuevos. Referencia: [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Subresource_Integrity).
+- LNK-012: las referencias de Website/Catálogo a Links verificadas resuelven localmente a seis destinos existentes. Fondos PNG originales y logo idénticos por SHA-256 al commit inicial `7c97600`; favicon disponible. Ningún recurso eliminado, renombrado o modificado en IMP-003. Sigue pendiente el acoplamiento de esos módulos a recursos dentro de Links; no se reorganizó.
+- Archivos modificados: `links/index.html`, `links/en/index.html`, `links/assets/css/styles.css`, `links/assets/js/main.js` y esta bitácora. Lógica de idiomas, vCard, imágenes y otros módulos intactos.
+- Validaciones OK: sintaxis de ambos JS, estructura básica HTML/atributos, encabezados y dimensiones, enlaces y JSON-LD conservados, recursos locales, hashes SRI y contrastes calculados. 110 aserciones de animación/interacción con DOM simulado, incluidos foco, puntero y movimiento reducido. CSS comprobado por delimitadores/cadenas y reglas específicas, no mediante un validador completo. `git diff --check` sin errores.
+- Pendientes: pruebas visuales, zoom, teclado, lector de pantalla y renderizado real de animaciones/SRI en navegador (servicio no disponible en esta sesión); producción/Hostinger y LNK-013. No se declara conformidad WCAG integral. La adecuación del logo estructurado al mínimo de Google continúa pendiente (archivo original 250 × 90, altura inferior a 112 px), sin imágenes nuevas ni cambios de marca.
+- Git: IMP-003 sin commit y sin cambios preparados; sin push, despliegue, cambio de rama ni `.htaccess`. Historial anterior conservado.
+
+## 2026-11-09 — IMP-004 / Cierre local de LNK-013
+
+- El responsable del proyecto informó 14/14 comprobaciones manuales locales satisfactorias; se registran como evidencia aportada por él, sin atribuir su ejecución al agente.
+- Verificados por el responsable: diseño responsive en móvil, tablet y escritorio; cinco botones, navegación, WhatsApp y descarga de vCard; selector de idioma, cambio ES/EN y persistencia; navegación con teclado y zoom al 200 %.
+- Fondos WebP cargados correctamente en los tres tamaños, consola de Chrome sin errores en modo incógnito y prueba satisfactoria en un teléfono Samsung Galaxy real, según lo informado.
+- LNK-013: **Validación local completada; producción pendiente**. De las comprobaciones de cierre quedan únicamente las que requieren publicación, incluidas previsualizaciones sociales y validaciones en producción/Hostinger. No se consideran ejecutadas ni completadas esas pruebas.
+- Registros anteriores conservados; sin cambios funcionales, de estilos, dependencias, otros módulos ni `.htaccess` en IMP-004.
