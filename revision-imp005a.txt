@@ -1,0 +1,338 @@
+﻿diff --git a/docs/bitacora.md b/docs/bitacora.md
+index 6c6af27..6b31c50 100644
+--- a/docs/bitacora.md
++++ b/docs/bitacora.md
+@@ -20,6 +20,7 @@ Referencia de esta entrega: `main`, commit base `7c97600dc5c6e5fee2a8c71274e055b
+ | LNK-011 | Dependencias externas | Links | Media | Completada; SRI verificado |
+ | LNK-012 | Integridad de recursos compartidos | Links | Alta | Verificada localmente; acoplamiento documentado |
+ | LNK-013 | Validaciones finales | Links | Alta | Validaci├│n local completada; producci├│n pendiente |
++| LNK-014 | GA4, consentimiento regional y privacidad | Links | Alta | Implementada; pruebas locales OK; Hostinger, GA4 y aprobaci├│n de privacidad pendientes |
+ 
+ ## Registro cronol├│gico
+ 
+@@ -105,3 +106,36 @@ Referencia de esta entrega: `main`, commit base `7c97600dc5c6e5fee2a8c71274e055b
+ - Fondos WebP cargados correctamente en los tres tama├▒os, consola de Chrome sin errores en modo inc├│gnito y prueba satisfactoria en un tel├⌐fono Samsung Galaxy real, seg├║n lo informado.
+ - LNK-013: **Validaci├│n local completada; producci├│n pendiente**. De las comprobaciones de cierre quedan ├║nicamente las que requieren publicaci├│n, incluidas previsualizaciones sociales y validaciones en producci├│n/Hostinger. No se consideran ejecutadas ni completadas esas pruebas.
+ - Registros anteriores conservados; sin cambios funcionales, de estilos, dependencias, otros m├│dulos ni `.htaccess` en IMP-004.
++
++## 2026-11-10 ΓÇö IMP-005 / LNK-014
++
++- Implementada GA4 `G-05PV03EELD` mediante `gtag.js`, exclusivamente en Links, sin GTM ni dependencias nuevas. Consent Mode v2 b├ísico: no se incorpora el script remoto antes de aceptar; rechazo inicial no inicializa GA4. `analytics_storage` solo se concede al aceptar; `ad_storage`, `ad_user_data` y `ad_personalization` permanecen denegados. Google signals y personalizaci├│n publicitaria desactivados en la configuraci├│n. Referencias oficiales: [Consent Mode](https://developers.google.com/tag-platform/security/guides/consent) y [controles de privacidad y bloqueo de medici├│n](https://developers.google.com/tag-platform/security/guides/privacy).
++- Aviso ES/EN en el flujo de la p├ígina, sin superposiciones ni bloqueo de navegaci├│n, con dos botones del mismo estilo y acceso permanente a preferencias. Elecci├│n compartida en `montfrut.analyticsConsent`: `accepted` / `rejected`; errores de lectura/escritura controlados. Si no se puede guardar, se informa que la elecci├│n se aplica solo en esa p├ígina. Se sincroniza entre pesta├▒as del mismo origen y al volver mediante cach├⌐ de navegaci├│n.
++- Revocaci├│n: activa `ga-disable-G-05PV03EELD` antes de actualizar los cuatro consentimientos a denegado, descarta clics pendientes y bloquea nuevos eventos. No puede deshacer solicitudes ya enviadas ni descargar de memoria un script que ya se carg├│. Reaceptar no duplica la inicializaci├│n ni la visita del documento.
++- Medici├│n remota permitida ├║nicamente con HTTPS en `montfrut.com` o `www.montfrut.com` y las cuatro rutas HTML de Links. Localhost, IP privadas y dem├ís hosts quedan excluidos aunque se acepte. No se modifica `language.js`; se comprueba su decisi├│n para no medir el documento saliente durante una redirecci├│n.
++- Evento `page_view` manual, una vez por documento habilitado, con `send_page_view: false` en config. Evento `montfrut_links_click` con `button_id` de lista cerrada: `catalog`, `instagram_main`, `website`, `whatsapp`, `contact`, `instagram_social`, `tiktok`, `facebook`, `linkedin`; `button_group`: `principal` / `social`; `page_language`: `es` / `en`. Incluye activaci├│n por teclado/clic y bot├│n central; excluye selector de idioma. Un clic en WhatsApp no acredita mensaje enviado ni venta. No se impide ni retrasa la acci├│n nativa.
++- Los eventos propios no leen URLs de destino ni textos del enlace. Ubicaci├│n de p├ígina enviada: URL can├│nica controlada, sin query/hash; referrer vac├¡o y t├¡tulos fijos. Los clics durante la carga del tag se conservan solo en memoria mientras siga aceptado; se descartan si falla la carga o se revoca.
++- **Requisito antes de publicar:** en Administrar ΓåÆ Flujos de datos ΓåÆ flujo web, desactivar Medici├│n mejorada, incluidas interacciones autom├íticas/enlaces salientes, descargas y cambios de p├ígina. Su `link_url` autom├ítico puede contener el n├║mero/mensaje de WhatsApp, y las visitas autom├íticas pueden duplicar la visita manual. Este ajuste de la propiedad no se puede verificar desde el repositorio; el c├│digo no sustituye esa configuraci├│n. Revisar tambi├⌐n eventos creados desde la interfaz y destinos adicionales del Google tag. Referencia: [medici├│n mejorada](https://support.google.com/analytics/answer/9216061).
++- Configuraci├│n manual pendiente: con rol Editor/Administrador, ir a Administrar ΓåÆ Visualizaci├│n de datos ΓåÆ Definiciones personalizadas ΓåÆ Crear dimensi├│n personalizada; crear tres de alcance Evento para `button_id`, `button_group` y `page_language`. Tras recibir datos, comprobar Tiempo real y usar las dimensiones en informes/exploraciones; pueden tardar 24ΓÇô48 horas. No configurar WhatsApp como venta. Referencia: [dimensiones de evento](https://support.google.com/analytics/answer/14239696).
++- Privacidad: no se identific├│ una pol├¡tica p├║blica v├ílida en el proyecto ni en los enlaces de la portada p├║blica consultada; el enlace local existente es un placeholder. Pendiente disponer de una pol├¡tica aprobada y publicada y vincularla antes del despliegue; no se invent├│ una p├ígina. La preferencia solo se comparte entre m├│dulos que adopten la clave y bajo el mismo origen; Website y Cat├ílogo no se integraron.
++- Archivos: creados `links/assets/js/analytics.js`; modificados `links/index.html`, `links/en/index.html`, `links/assets/css/styles.css` y esta bit├ícora. Conservados enlaces y atributos originales, head/metadatos, animaciones y l├│gica de idiomas. Recursos gr├íficos y m├│dulos ajenos intactos, incluidas modificaciones manuales del propietario.
++- Validaciones: `node --check` satisfactorio; 149 aserciones Node VM con DOM/tag simulados y el `language.js` real: ausencia de tag/eventos sin elecci├│n o con rechazo, aceptaci├│n e inicializaci├│n ├║nica, persistencia, revocaci├│n durante/despu├⌐s de carga, reaceptaci├│n, almacenamiento bloqueado, fallo de carga, nueve botones y clic central, valores controlados sin datos de WhatsApp, ES/EN, redirecciones, exclusi├│n de hosts locales/privados, sincronizaci├│n y retorno desde cach├⌐. Sin solicitudes reales de GA4. Otras 29 aserciones de HTML, atributos/ARIA, recursos locales, conservaci├│n de enlaces/head/CSS previo y delimitadores CSS. Contraste calculado de nuevos textos/controles: 14,74:1 normal y 14,19:1 hover; no constituye certificaci├│n integral de accesibilidad.
++- Pendientes: comprobar aviso y preferencias en navegador real, m├│vil, teclado, zoom y lector de pantalla; validar solicitudes/cookies al aceptar, rechazar y revocar en producci├│n, incluyendo ausencia de pings sin consentimiento, URLs sensibles y duplicaciones. Verificar GA4 Tiempo real/DebugView y configuraci├│n del flujo. No se verificaron eventos reales ni se extiende la aprobaci├│n manual de IMP-004 al nuevo consentimiento. Contin├║an los pendientes previos de producci├│n y del logo estructurado.
++- Git: `git diff --check` satisfactorio; IMP-005 sin staging ni commit, sin push ni despliegue. Se conservaron los cambios gr├íficos previos del propietario y los archivos sin seguimiento ajenos a esta entrega.
++
++## 2026-11-10 ΓÇö IMP-005A / Consentimiento regional y centro de privacidad
++
++- Esta entrega reemplaza el aviso general de IMP-005 por la regla regional aprobada, conservando el historial. Nueva gesti├│n reutilizable en `links/assets/js/consent.js`, separada del env├¡o GA4 en `analytics.js`. Conservados `page_view`, `montfrut_links_click`, sus tres par├ímetros, los nueve identificadores y el bloqueo de medici├│n real fuera de los hosts/rutas HTTPS p├║blicos autorizados. Sin modificar redirecciones, idioma, enlaces de los botones ni animaciones originales.
++- Nuevo endpoint `links/api/region.php`: lee exclusivamente `$_SERVER['GEOIP_COUNTRY_CODE']`, valida contra 249 c├│digos ISO 3166-1 alpha-2 y devuelve ├║nicamente `{"country":"US"}` o `{"country":null}`. No consulta idioma, encabezados `HTTP_*`, query, formulario ni servicios externos; no devuelve ni guarda IP. Respuesta JSON con `Cache-Control: private, no-store, no-cache, max-age=0, must-revalidate`, `Pragma`, `Expires` y `nosniff`; fetch del mismo origen con `cache: no-store`. El pa├¡s no se persiste en el navegador.
++- Reglas: una elecci├│n expl├¡cita `accepted`/`rejected` siempre prevalece, incluso al cambiar de pa├¡s. Sin elecci├│n, US habilita estad├¡sticas despu├⌐s de una respuesta v├ílida, sin guardar una aceptaci├│n; EEE, Reino Unido, Suiza y todos los dem├ís pa├¡ses solicitan permiso. Pa├¡s desconocido, error HTTP/JSON/red, falta de APIs o espera superior a 3 segundos mantienen el bloqueo y muestran el aviso. Como condici├│n conservadora adicional, Global Privacy Control evita la habilitaci├│n autom├ítica estadounidense. La regla es una decisi├│n de producto aprobada, no una conclusi├│n de cumplimiento legal estadounidense.
++- Mantenido el contrato `montfrut.analyticsConsent` sin introducir aceptaciones autom├íticas. Errores de almacenamiento controlados; una elecci├│n en memoria se conserva al volver a la p├ígina si la lectura est├í bloqueada. Sin almacenamiento disponible no se puede garantizar persistencia entre p├íginas/visitas. Sincronizaci├│n entre pesta├▒as y al volver desde cach├⌐; revocaci├│n bloquea nuevos eventos, aplica denegaci├│n y descarta clics pendientes. No elimina datos hist├│ricos ni revierte solicitudes ya enviadas. Publicidad siempre denegada; Consent Mode v2 b├ísico cuando se requiere aceptaci├│n.
++- Aviso ES/EN: tarjeta flotante inferior de hasta 360 px, sin overlay ni animaci├│n, altura limitada a media pantalla y scroll interno para ventanas peque├▒as/zoom. Colores existentes, texto breve, enlace a privacidad y botones equivalentes Aceptar/Rechazar. Foco visible y devoluci├│n al enlace de privacidad al ocultar la tarjeta tras una elecci├│n; espacio inferior y margen de scroll para facilitar el acceso a enlaces con la tarjeta abierta. No se interpreta ignorarla como aceptaci├│n. Footer permanente Privacidad/Privacy.
++- Creadas `/privacy/` y `/privacy/en/`, con CSS ligero propio, sin frameworks, fuentes remotas, im├ígenes nuevas ni carga de Analytics. Explican operador Montfrut, contacto `montfrut@gmail.com`, finalidad y eventos, cookies/almacenamiento, regi├│n, transmisi├│n t├⌐cnica a Google, l├¡mites de la revocaci├│n y enlaces oficiales a [privacidad de Google](https://policies.google.com/privacy) y [uso de informaci├│n de sitios asociados](https://policies.google.com/technologies/partner-sites). Preferencias siempre accesibles mediante la misma gesti├│n JS, sin duplicar l├│gica. El cambio de idioma de esta p├ígina utiliza enlaces expl├¡citos y no altera la l├│gica de Links.
++- La pol├¡tica se identifica como texto pendiente de aprobaci├│n: confirmar identidad legal y datos del responsable, configuraci├│n y conservaci├│n reales de GA4 y condiciones de la regla regional, incluidos posibles requisitos adicionales en Estados Unidos. No se inventan plazos, derechos espec├¡ficos, domicilios ni garant├¡as de anonimato. Las afirmaciones sobre el payload propio presuponen aplicar los ajustes GA4 pendientes antes de publicar.
++- Hostinger: no se encontr├│ ning├║n `.htaccess` ni configuraci├│n GeoIP/PHP de servidor en el repositorio (incluidos archivos ocultos). No se cre├│ ni modific├│ `.htaccess`: la configuraci├│n local no permite garantizar compatibilidad con la producci├│n. La [documentaci├│n de Hostinger](https://www.hostinger.com/support/3738302-how-to-enable-geoip-at-hostinger/) indica `GeoIPEnable On`. Pendiente revisar el archivo real y el soporte de la directiva en el plan, limitarla preferentemente a `/links/api/.htaccess` si el servidor lo admite y comprobar `GEOIP_COUNTRY_CODE` en el endpoint; conservar reglas, permisos y DirectoryIndex existentes. No publicar archivos `phpinfo` de diagn├│stico. Sin GeoIP disponible, el comportamiento previsto es desconocido y consentimiento obligatorio.
++- Producci├│n pendiente: verificar ejecuci├│n PHP 8.1+, GeoIP real con visitantes de pa├¡ses distintos, respuesta/cabeceras y exclusi├│n expl├¡cita del endpoint de cualquier cach├⌐ CDN/Hostinger que pudiera ignorarlas. Publicar ambas rutas de privacidad junto con Links y sus recursos compartidos, sin alterar otros m├│dulos. Website y Cat├ílogo incorporar├ín posteriormente el mismo enlace y gestor bajo el mismo origen; todav├¡a no se integraron. `www` y dominio sin `www` son or├¡genes distintos y no comparten localStorage autom├íticamente.
++- Google Analytics pendiente: conservar la desactivaci├│n de Medici├│n mejorada indicada en IMP-005 (en especial `link_url` autom├ítico de WhatsApp y visitas duplicadas), revisar eventos/destinos configurados en la propiedad y crear/verificar las dimensiones de evento. Verificar en red/GA4 que no haya solicitudes antes de aceptar donde corresponda ni despu├⌐s de rechazar/revocar; comprobar datos reales en Tiempo real/DebugView. No se enviaron ni verificaron mediciones reales en esta entrega.
++- Archivos creados: `links/api/region.php`, `links/assets/js/consent.js`, `privacy/index.html`, `privacy/en/index.html`, `privacy/assets/css/styles.css`. Modificados: ambos HTML de Links, `links/assets/css/styles.css`, `links/assets/js/analytics.js` (todav├¡a sin seguimiento desde IMP-005) y esta bit├ícora. Hashes comparados con el inicio de IMP-005A: otros m├│dulos, im├ígenes manuales y recursos previos intactos; ning├║n archivo eliminado/restaurado. Sigue el acoplamiento de privacidad al gestor/endpoint alojados dentro de Links, deliberado para evitar duplicaci├│n y sin reorganizaci├│n general.
++- Pruebas OK: 305 aserciones Node VM ejecutando los JS reales con DOM/Google simulados: US sin elecci├│n, pa├¡ses europeos/otros/desconocidos, aceptaci├│n/rechazo y persistencia, cambios desde privacidad y entre pesta├▒as, regi├│n fallida/tard├¡a, almacenamiento bloqueado, ES/EN, GPC, redirecci├│n de idioma, revocaci├│n durante/despu├⌐s de carga, reaceptaci├│n e inicializaci├│n/visita ├║nicas, nueve botones, clic central y par├ímetros controlados, hosts locales/privados bloqueados. Las simulaciones de pa├¡s existen solo en el harness de pruebas por stdin; no se a├▒adieron par├ímetros ni modos de simulaci├│n al c├│digo publicado.
++- Pruebas OK: 25 aserciones PHP CLI para pa├¡ses v├ílidos, c├│digos/valores inv├ílidos y rechazo de entradas cliente; 16 comprobaciones HTTP sobre servidor PHP local para rutas ES/EN, JSON desconocido sin GeoIP y cabeceras anticach├⌐ aun con query/encabezados falsos. Servidor de prueba detenido. Sintaxis PHP verificada con PHP 8.4.27 y sintaxis JS con Node; se usa sintaxis compatible con 8.1+, sin prueba de ejecuci├│n en 8.1 ni en Hostinger. Otras 85 aserciones HTML/CSS: recursos locales, IDs/ARIA, botones, conservaci├│n de enlaces/head y CSS previo fuera del componente, orden de scripts y ausencia de Analytics en privacidad; comprobaci├│n CSS b├ísica, sin validador integral. Contrastes calculados de superficies nuevas: 14,74:1 normal y 14,19:1 hover.
++- Pendientes manuales: apariencia real de la tarjeta y p├íginas, teclado, zoom 200 %, foco no oculto, lector de pantalla y navegadores/m├│viles; comprobar pol├¡ticas y cach├⌐ en producci├│n y la configuraci├│n real GA4. Las pruebas locales de IMP-004 no se consideran validaci├│n visual de estos componentes nuevos. `git diff --check` satisfactorio; sin staging, commits, push, despliegue ni dependencias instaladas. Recursos del propietario sin incorporar a Git.
+diff --git a/links/assets/css/styles.css b/links/assets/css/styles.css
+index 3546a44..01c3a0d 100644
+--- a/links/assets/css/styles.css
++++ b/links/assets/css/styles.css
+@@ -557,6 +557,90 @@ img {
+   }
+ }
+ 
++/* ---- Regional statistics notice and privacy link ----------- */
++.analytics-privacy {
++  width: min(100% - 2rem, 520px);
++  margin: 0 auto 1rem;
++  color: var(--blood-crimson);
++  font-size: 0.875rem;
++  text-align: center;
++}
++
++.analytics-consent {
++  position: fixed;
++  z-index: 1000;
++  bottom: 1rem;
++  right: 1rem;
++  width: min(360px, calc(100% - 2rem));
++  max-height: calc(50vh - 1rem);
++  max-height: calc(50dvh - 1rem);
++  overflow-y: auto;
++  padding: 1rem;
++  border: 1px solid var(--midnight-blue);
++  border-radius: 12px;
++  background: var(--almond-cream);
++  text-align: left;
++  box-shadow: 0 4px 18px rgba(13, 30, 50, 0.18);
++}
++
++.analytics-consent h2 {
++  font-family: var(--font-body);
++  font-size: 1rem;
++  font-weight: 600;
++  margin-bottom: 0.5rem;
++}
++
++.analytics-consent p { margin-bottom: 0.5rem; }
++.analytics-policy-link {
++  display: inline-block;
++  padding: 0.5rem 0;
++  margin-bottom: 0.25rem;
++  color: var(--blood-crimson);
++  text-decoration: underline;
++}
++.analytics-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
++
++.analytics-button,
++.analytics-settings {
++  min-height: 44px;
++  padding: 0.5rem 0.75rem;
++  border: 1px solid var(--midnight-blue);
++  border-radius: 8px;
++  background: var(--almond-cream);
++  color: var(--blood-crimson);
++  font: inherit;
++  line-height: 1.5;
++  cursor: pointer;
++}
++
++.analytics-button { flex: 1 1 7rem; }
++.analytics-settings { display: inline-block; text-decoration: underline; }
++.analytics-button:hover,
++.analytics-settings:hover { background: var(--vanilla-cream); }
++.analytics-button:focus-visible,
++.analytics-settings:focus-visible,
++.analytics-policy-link:focus-visible {
++  outline: 3px solid var(--blood-crimson);
++  outline-offset: 3px;
++  box-shadow: 0 0 0 6px var(--almond-cream);
++}
++
++.analytics-status {
++  background: var(--almond-cream);
++  border-radius: 8px;
++  margin: 0.5rem 0 0;
++  padding: 0.5rem;
++}
++.analytics-status:empty { display: none; }
++.analytics-consent[hidden],
++.analytics-settings[hidden] { display: none; }
++
++/* Keep the focused page control clear of the floating notice while tabbing. */
++body:has(.analytics-consent:not([hidden])) a:not(.analytics-consent a):focus-visible {
++  scroll-margin-bottom: 22rem;
++}
++body:has(.analytics-consent:not([hidden])) .analytics-privacy { padding-bottom: 22rem; }
++
+ /* ---- Reduced motion --------------------------------------- */
+ @media (prefers-reduced-motion: reduce) {
+ 
+diff --git a/links/en/index.html b/links/en/index.html
+index 39b15b8..1deeb7d 100644
+--- a/links/en/index.html
++++ b/links/en/index.html
+@@ -122,7 +122,7 @@
+       <nav class="links-nav" aria-label="Montfrut main links">
+ 
+         <a class="link-btn anim-entry" href="https://montfrut.com/catalog/" target="_blank" rel="noopener noreferrer"
+-          aria-label="2026 Catalog ΓÇö discover our most special creations">
++          aria-label="2026 Catalog ΓÇö discover our most special creations" data-analytics-id="catalog">
+           <span class="btn-icon" aria-hidden="true"><i class="fa-solid fa-table-cells-large"></i></span>
+           <span class="btn-body">
+             <strong>2026 Catalog</strong>
+@@ -132,7 +132,7 @@
+         </a>
+ 
+         <a class="link-btn anim-entry" href="https://instagram.com/montfrut" target="_blank" rel="noopener noreferrer"
+-          aria-label="Follow us on Instagram @montfrut">
++          aria-label="Follow us on Instagram @montfrut" data-analytics-id="instagram_main">
+           <span class="btn-icon" aria-hidden="true"><i class="fa-brands fa-instagram" aria-hidden="true"></i></span>
+           <span class="btn-body">
+             <strong>Follow us on Instagram</strong>
+@@ -142,7 +142,7 @@
+         </a>
+ 
+         <a class="link-btn anim-entry" href="https://montfrut.com/" target="_blank" rel="noopener noreferrer"
+-          aria-label="Website ΓÇö Learn about our story and full experience">
++          aria-label="Website ΓÇö Learn about our story and full experience" data-analytics-id="website">
+           <span class="btn-icon" aria-hidden="true"><i class="fa-solid fa-globe"></i></span>
+           <span class="btn-body">
+             <strong>Website</strong>
+@@ -153,7 +153,7 @@
+ 
+         <a class="link-btn link-btn--whatsapp anim-entry"
+           href="https://wa.me/+19174740694?text=Hi%20I%20would%20like%20to%20know%20more%20about%20your%20products"
+-          target="_blank" rel="noopener noreferrer" aria-label="Contact us on WhatsApp for personalized service">
++          target="_blank" rel="noopener noreferrer" aria-label="Contact us on WhatsApp for personalized service" data-analytics-id="whatsapp">
+           <span class="btn-icon" aria-hidden="true"><i class="fa-brands fa-whatsapp"></i></span>
+           <span class="btn-body">
+             <strong>Contact us on WhatsApp</strong>
+@@ -162,7 +162,7 @@
+           <span class="btn-arrow" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+         </a>
+ 
+-        <a class="link-btn anim-entry" href="../contact.vcf" download="montfrut-contact.vcf" aria-label="Save our contact">
++        <a class="link-btn anim-entry" href="../contact.vcf" download="montfrut-contact.vcf" aria-label="Save our contact" data-analytics-id="contact">
+           <span class="btn-icon" aria-hidden="true"><i class="fa-solid fa-address-card"></i></span>
+           <span class="btn-body">
+             <strong>Save our contact</strong>
+@@ -183,19 +183,19 @@
+       <!-- Social -->
+       <nav class="social-row anim-entry" aria-label="Montfrut social media">
+         <a href="https://instagram.com/montfrut" target="_blank" rel="noopener noreferrer"
+-          aria-label="Montfrut on Instagram">
++          aria-label="Montfrut on Instagram" data-analytics-id="instagram_social">
+           <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+         </a>
+         <a href="https://www.tiktok.com/@montfrut" target="_blank" rel="noopener noreferrer"
+-          aria-label="Montfrut on TikTok">
++          aria-label="Montfrut on TikTok" data-analytics-id="tiktok">
+           <i class="fa-brands fa-tiktok" aria-hidden="true"></i>
+         </a>
+         <a href="https://www.facebook.com/montfrut" target="_blank" rel="noopener noreferrer"
+-          aria-label="Montfrut on Facebook">
++          aria-label="Montfrut on Facebook" data-analytics-id="facebook">
+           <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+         </a>
+         <a href="https://www.linkedin.com/company/montfrut" target="_blank" rel="noopener noreferrer"
+-          aria-label="Montfrut on Linkedin">
++          aria-label="Montfrut on Linkedin" data-analytics-id="linkedin">
+           <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+         </a>
+       </nav>
+@@ -204,8 +204,23 @@
+ 
+   </div>
+ 
++  <footer class="analytics-privacy" aria-label="Statistics privacy">
++    <section id="analytics-consent" class="analytics-consent" aria-labelledby="analytics-title" hidden>
++      <h2 id="analytics-title">Your privacy</h2>
++      <p>We use analytics cookies to improve Montfrut. May we use them?</p>
++      <a class="analytics-policy-link" href="/privacy/en/">More about privacy</a>
++      <div class="analytics-actions">
++        <button class="analytics-button" type="button" data-consent-choice="rejected">Reject</button>
++        <button class="analytics-button" type="button" data-consent-choice="accepted">Accept</button>
++      </div>
++    </section>
++    <a class="analytics-settings" href="/privacy/en/" data-privacy-link>Privacy</a>
++  </footer>
++
+   <!-- App JS -->
+   <script src="../assets/js/main.js"></script>
++  <script src="../assets/js/consent.js"></script>
++  <script src="../assets/js/analytics.js"></script>
+ 
+ </body>
+ 
+diff --git a/links/index.html b/links/index.html
+index cd2e474..755df2c 100644
+--- a/links/index.html
++++ b/links/index.html
+@@ -122,7 +122,7 @@
+       <nav class="links-nav" aria-label="Links principales de Montfrut">
+ 
+         <a class="link-btn anim-entry" href="https://montfrut.com/catalog/" target="_blank" rel="noopener noreferrer"
+-          aria-label="Cat├ílogo 2026 ΓÇö descubr├¡ nuestras creaciones m├ís especiales">
++          aria-label="Cat├ílogo 2026 ΓÇö descubr├¡ nuestras creaciones m├ís especiales" data-analytics-id="catalog">
+           <span class="btn-icon" aria-hidden="true"><i class="fa-solid fa-table-cells-large"></i></span>
+           <span class="btn-body">
+             <strong>Cat├ílogo 2026</strong>
+@@ -132,7 +132,7 @@
+         </a>
+ 
+         <a class="link-btn anim-entry" href="https://instagram.com/montfrut" target="_blank" rel="noopener noreferrer"
+-          aria-label="S├¡guenos en Instagram @montfrut">
++          aria-label="S├¡guenos en Instagram @montfrut" data-analytics-id="instagram_main">
+           <span class="btn-icon" aria-hidden="true"><i class="fa-brands fa-instagram" aria-hidden="true"></i></span>
+           <span class="btn-body">
+             <strong>S├¡guenos en Instagram</strong>
+@@ -142,7 +142,7 @@
+         </a>
+ 
+         <a class="link-btn anim-entry" href="https://montfrut.com/" target="_blank" rel="noopener noreferrer"
+-          aria-label="Website ΓÇö Conoc├⌐ nuestra historia y propuesta completa">
++          aria-label="Website ΓÇö Conoc├⌐ nuestra historia y propuesta completa" data-analytics-id="website">
+           <span class="btn-icon" aria-hidden="true"><i class="fa-solid fa-globe"></i></span>
+           <span class="btn-body">
+             <strong>Website</strong>
+@@ -153,7 +153,7 @@
+ 
+         <a class="link-btn link-btn--whatsapp anim-entry"
+           href="https://wa.me/+19174740694?text=Hola%20me%20gustar%C3%ADa%20saber%20m%C3%A1s%20sobre%20sus%20productos"
+-          target="_blank" rel="noopener noreferrer" aria-label="Cont├íctanos por WhatsApp para atenci├│n personalizada">
++          target="_blank" rel="noopener noreferrer" aria-label="Cont├íctanos por WhatsApp para atenci├│n personalizada" data-analytics-id="whatsapp">
+           <span class="btn-icon" aria-hidden="true"><i class="fa-brands fa-whatsapp"></i></span>
+           <span class="btn-body">
+             <strong>Cont├íctanos por WhatsApp</strong>
+@@ -162,7 +162,7 @@
+           <span class="btn-arrow" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+         </a>
+ 
+-        <a class="link-btn anim-entry" href="contact.vcf" download="montfrut-contacto.vcf" aria-label="Agenda nuestro contacto">
++        <a class="link-btn anim-entry" href="contact.vcf" download="montfrut-contacto.vcf" aria-label="Agenda nuestro contacto" data-analytics-id="contact">
+           <span class="btn-icon" aria-hidden="true"><i class="fa-solid fa-address-card"></i></span>
+           <span class="btn-body">
+             <strong>Agenda nuestro contacto</strong>
+@@ -183,19 +183,19 @@
+       <!-- Social -->
+       <nav class="social-row anim-entry" aria-label="Redes sociales de Montfrut">
+         <a href="https://instagram.com/montfrut" target="_blank" rel="noopener noreferrer"
+-          aria-label="Montfrut en Instagram">
++          aria-label="Montfrut en Instagram" data-analytics-id="instagram_social">
+           <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+         </a>
+         <a href="https://www.tiktok.com/@montfrut" target="_blank" rel="noopener noreferrer"
+-          aria-label="Montfrut en TikTok">
++          aria-label="Montfrut en TikTok" data-analytics-id="tiktok">
+           <i class="fa-brands fa-tiktok" aria-hidden="true"></i>
+         </a>
+         <a href="https://www.facebook.com/montfrut" target="_blank" rel="noopener noreferrer"
+-          aria-label="Montfrut en Facebook">
++          aria-label="Montfrut en Facebook" data-analytics-id="facebook">
+           <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+         </a>
+         <a href="https://www.linkedin.com/company/montfrut" target="_blank" rel="noopener noreferrer"
+-          aria-label="Montfrut en Linkedin">
++          aria-label="Montfrut en Linkedin" data-analytics-id="linkedin">
+           <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+         </a>
+       </nav>
+@@ -204,8 +204,23 @@
+ 
+   </div>
+ 
++  <footer class="analytics-privacy" aria-label="Privacidad de estad├¡sticas">
++    <section id="analytics-consent" class="analytics-consent" aria-labelledby="analytics-title" hidden>
++      <h2 id="analytics-title">Tu privacidad</h2>
++      <p>Utilizamos cookies de an├ílisis para mejorar Montfrut. ┬┐Nos permit├¡s usarlas?</p>
++      <a class="analytics-policy-link" href="/privacy/">M├ís sobre privacidad</a>
++      <div class="analytics-actions">
++        <button class="analytics-button" type="button" data-consent-choice="rejected">Rechazar</button>
++        <button class="analytics-button" type="button" data-consent-choice="accepted">Aceptar</button>
++      </div>
++    </section>
++    <a class="analytics-settings" href="/privacy/" data-privacy-link>Privacidad</a>
++  </footer>
++
+   <!-- App JS -->
+   <script src="assets/js/main.js"></script>
++  <script src="assets/js/consent.js"></script>
++  <script src="assets/js/analytics.js"></script>
+ 
+ </body>
+ 
