@@ -1,4 +1,4 @@
-/** Links only. Regional eligibility is provided by the shared consent manager.
+/** Links only. Explicit acceptance is provided by the shared consent manager.
  * Before publishing, disable Enhanced Measurement in this GA4 web stream.
  * Otherwise its automatic link_url events can expose the WhatsApp destination.
  */
