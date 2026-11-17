@@ -1,3 +1,55 @@
+/* CAT-IMP-002B: isolated variant controls and unavailable selection states. */
+.selection-variant-group {
+  min-width: 0;
+  margin: 1rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--color-sidebar-border);
+  border-radius: 6px;
+}
+
+.selection-variant-group legend {
+  float: none;
+  width: auto;
+  padding: 0 0.25rem;
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.selection-variant-option {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.selection-variant-option input {
+  flex-shrink: 0;
+  accent-color: var(--midnight-blue);
+}
+
+.selection-variant-option input:focus-visible {
+  outline: 2px solid var(--midnight-blue);
+  outline-offset: 3px;
+}
+
+.selection-status,
+.selection-validation {
+  color: var(--color-text-primary);
+  font-size: 0.8125rem;
+  margin: 0.5rem 0;
+}
+
+.btn-add-to-cart:disabled,
+.btn-add-to-cart:disabled:hover {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 /* ==========================================================================
    Montfrut — styles.css
    Premium artisan chocolate brand — front-end stylesheet
