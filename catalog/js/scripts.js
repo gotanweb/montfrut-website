@@ -39,7 +39,7 @@ let selectionEditKey = null;
 let pendingSelectionDetails = null;
 let selectionDetailsReturn = null;
 let selectionPanelFocus = null;
-// Source phrases use localized getters; their ES equivalents live in i18n.js.
+// Source phrases use localized getters; their ES equivalents live in translations.js.
 const SELECTION_COPY = localizedCatalogCopy({
   add: 'Add to Selection', save: 'Save changes', remove: 'Remove', edit: 'Review options', details: 'Details',
   missing: 'Product no longer listed', unavailable: 'Unavailable', quantity: 'Quantity',
@@ -98,7 +98,7 @@ const INQUIRY_MESSAGES = {
 let inquiryCopyPending = false;
 let inquiryConsent = null;
 let inquiryConsentPanelReturn = null;
-let lastToastName = null;
+let lastToastProductId = null;
 let activeCategories = [];
 let activeFlavors = [];
 let searchQuery = '';
@@ -288,7 +288,7 @@ function addToSelection(productId, configuration = [], quantity = 1) {
   updateSelectionCount();
   saveSelection();
   renderMySelection();
-  showToast(result.product.name);
+  showToast(result.product.id);
   return result;
 }
 
@@ -302,13 +302,13 @@ function requestProductSelection(productId, trigger = null) {
   return addToSelection(productId).valid;
 }
 
-function showToast(productName) {
-  lastToastName = productName;
+function showToast(productId) {
+  lastToastProductId = productId;
   const toastEl = document.getElementById('cart-toast');
   const toastBody = document.getElementById('toast-body-text');
   const notice = getSelectionPersistenceNotice();
-  const product = products.find(product => product.name === productName);
-  const name = product ? localizedProduct(product).name : productName;
+  const product = products.find(product => product.id === productId);
+  const name = product ? localizedProduct(product).name : String(productId);
   toastBody.textContent = catalogText('"{name}" added to selection.', { name }) + (notice ? ` ${notice}` : '');
   if (notice) selectionPersistence.noticeShown = true;
   const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
@@ -559,7 +559,7 @@ function showSelectionPersistenceNotice() {
   const message = getSelectionPersistenceNotice();
   if (!message || selectionPersistence.noticeShown) return;
   selectionPersistence.noticeShown = true;
-  lastToastName = null;
+  lastToastProductId = null;
   document.getElementById('toast-body-text').textContent = message;
   bootstrap.Toast.getOrCreateInstance(document.getElementById('cart-toast')).show();
 }
@@ -1101,8 +1101,9 @@ function getFilteredProducts() {
   if (searchQuery.trim() !== '') {
     const q = searchQuery.toLowerCase();
     filtered = filtered.filter(p => {
+      const english = localizedProduct(p, 'en');
       const spanish = localizedProduct(p, 'es');
-      return [p.name, p.shortDescription, p.category, p.flavor,
+      return [english.name, english.shortDescription, english.category, english.flavor,
         spanish.name, spanish.shortDescription, spanish.category, spanish.flavor]
         .some(text => text.toLowerCase().includes(q));
     });

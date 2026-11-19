@@ -1,6 +1,6 @@
 'use strict';
 
-// CAT-IMP-004: additive ES translations; original English/commercial records remain in products.js.
+// CAT-IMP-004 / CAT-REF-001: interface translations and language behavior; product texts live in products.js.
 const CATALOG_ES = Object.freeze({
   "Catalog language": "Idioma del catálogo",
   "Language changes apply only to this visit because saving is unavailable.": "El idioma se mantendrá solo durante esta visita porque no se puede guardar.",
@@ -204,122 +204,6 @@ const CATALOG_ES = Object.freeze({
   "Show {name} photo {number}": "Mostrar foto {number} de {name}"
 });
 
-const CATALOG_PRODUCT_ES = Object.freeze({
-  "1": {
-    "name": "Mendiant Trio",
-    "shortDescription": "Suave praliné de avellana recubierto de intenso chocolate negro.",
-    "longDescription": "Un clásico de siempre, reinterpretado. Nuestros bombones de praliné de avellana se elaboran con avellanas de Piamonte tostadas lentamente y mezcladas en una crema de praliné sedosa, que luego se bañan a mano en chocolate negro de origen único al 70%. Cada pieza se termina con un delicado trocito de avellana, que ofrece un equilibrio entre textura crujiente, dulzor y profundidad.",
-    "ingredients": "Chocolate negro (pasta de cacao, azúcar, manteca de cacao, vainilla), pasta de avellana, crema, manteca, azúcar.",
-    "flavorNotes": [
-      "Avellana tostada",
-      "Cacao negro",
-      "Azúcar caramelizada"
-    ]
-  },
-  "2": {
-    "name": "Colección Signature – 12 unidades",
-    "shortDescription": "Una exquisita selección de nuestros sabores más apreciados.",
-    "longDescription": "Doce de nuestros mejores bombones, cuidadosamente seleccionados en una elegante caja de regalo. Esta colección incluye cuatro de praliné de avellana, cuatro de caramelo con sal marina y cuatro de ganache de frambuesa, que muestran toda la variedad de la elaboración artesanal de Montfrut. Cada bombón se coloca individualmente en una cápsula de papel plegada a mano dentro de una caja de presentación laqueada.",
-    "ingredients": "Chocolate negro, chocolate con leche, crema, manteca, pasta de avellana, sal marina, puré de frambuesa, azúcar.",
-    "flavorNotes": [
-      "Selección variada",
-      "Cacao negro",
-      "Avellana",
-      "Caramelo"
-    ]
-  },
-  "3": {
-    "name": "Trufas clásicas",
-    "shortDescription": "Trufas sedosas con un intenso acabado de cacao.",
-    "longDescription": "Nuestras trufas clásicas representan la expresión más pura del chocolate. Una ganache de gran intensidad, elaborada con cacao ecuatoriano al 65%, se moldea a mano y se recubre con una fina capa de cacao en polvo. Suaves, delicadas e intensamente achocolatadas, están pensadas para quienes aprecian la sencillez realizada a la perfección.",
-    "ingredients": "Chocolate negro (65% de cacao), crema, manteca, cacao en polvo para recubrir.",
-    "flavorNotes": [
-      "Cacao intenso",
-      "Vainilla",
-      "Notas terrosas"
-    ]
-  },
-  "4": {
-    "name": "Tableta de chocolate negro 70%",
-    "shortDescription": "Cacao puro de origen único al 70% en una elegante tableta artesanal.",
-    "longDescription": "Elaborada con cacao de una única finca de Madagascar, esta tableta de chocolate negro al 70% es una expresión de sobriedad y calidad. Con notas de frutas deshidratadas, un sutil carácter terroso y un final largo y limpio, invita a saborearla lentamente. Se muele en piedra durante 48 horas y luego se templa a mano para lograr un quiebre perfecto y una superficie brillante.",
-    "ingredients": "Chocolate negro (pasta de cacao 70%, azúcar, manteca de cacao, extracto de vainilla). Puede contener trazas de leche y frutos secos.",
-    "flavorNotes": [
-      "Frutos rojos",
-      "Notas terrosas",
-      "Final prolongado"
-    ]
-  },
-  "5": {
-    "name": "Bombones Delicia de Pistacho",
-    "shortDescription": "Ganache de pistacho en chocolate blanco.",
-    "longDescription": "Pistachos iraníes, tostados lentamente y molidos hasta obtener una pasta de intenso color verde, forman el corazón de estos elegantes bombones. La ganache es delicada y aromática, recubierta por una capa de chocolate blanco pintada a mano. Un toque de cardamomo realza el sabor y convierte cada pieza en un pequeño y sofisticado placer.",
-    "ingredients": "Chocolate blanco (manteca de cacao, azúcar, leche en polvo, vainilla), pasta de pistacho, crema, cardamomo.",
-    "flavorNotes": [
-      "Pistacho",
-      "Cardamomo",
-      "Cacao blanco"
-    ]
-  },
-  "6": {
-    "name": "Caja de regalo prémium – 24 unidades",
-    "shortDescription": "Un lujoso surtido para momentos especiales.",
-    "longDescription": "Veinticuatro de nuestros mejores chocolates presentados en una caja laqueada artesanal con una cinta de satén. Un regalo ideal para cualquier ocasión, con seis variedades de toda nuestra gama de sabores. Bellamente dispuestos y listos para regalar, o para disfrutar vos mismo, porque te lo merecés.",
-    "ingredients": "Chocolates surtidos: chocolate negro, con leche, blanco y distintos rellenos. Consultá las descripciones de cada producto.",
-    "flavorNotes": [
-      "Gama completa",
-      "Cacao con leche",
-      "Caramelo",
-      "Avellana"
-    ]
-  },
-  "7": {
-    "name": "Caramelos con sal marina",
-    "shortDescription": "Caramelo con manteca y un toque de sal marina.",
-    "longDescription": "Caramelo cocido lentamente con azúcar de caña orgánica y manteca francesa, terminado con sal marina Fleur de Sel recolectada a mano y recubierto de intenso chocolate con leche. El equilibrio entre dulzor, sal y chocolate resulta irresistible. Un favorito de Montfrut que, una vez probado, siempre se vuelve a pedir.",
-    "ingredients": "Chocolate con leche (azúcar, manteca de cacao, leche entera en polvo, pasta de cacao), caramelo (azúcar, crema, manteca), sal marina.",
-    "flavorNotes": [
-      "Caramelo salado",
-      "Chocolate con leche",
-      "Fleur de Sel"
-    ]
-  },
-  "8": {
-    "name": "Mini Moments – 9 unidades",
-    "shortDescription": "Pequeños placeres del tamaño de un bocado para cualquier antojo.",
-    "longDescription": "Nueve bombones en miniatura en una pequeña caja de presentación, ideales para un regalo íntimo o un gusto personal. Incluyen nuestros tres sabores más apreciados en un formato menor: praliné de avellana, caramelo salado y ganache clásica. Pequeños en tamaño, enormes en placer.",
-    "ingredients": "Chocolate con leche, chocolate negro, crema, pasta de avellana, caramelo, manteca, azúcar.",
-    "flavorNotes": [
-      "Avellana",
-      "Caramelo",
-      "Ganache de chocolate negro"
-    ]
-  },
-  "9": {
-    "name": "Bombones Sueño de Coco",
-    "shortDescription": "Relleno cremoso de coco en chocolate negro.",
-    "longDescription": "Inspirados en sabores tropicales, estos bombones combinan un suave relleno de crema de coco con coco tostado en láminas y un toque de ron, todo recubierto por una capa de intenso chocolate negro al 68%. El contraste entre el dulzor tropical y la intensidad del cacao negro crea una combinación inesperadamente refinada.",
-    "ingredients": "Chocolate negro (68% de pasta de cacao), crema de coco, coco tostado en láminas, ron, azúcar.",
-    "flavorNotes": [
-      "Coco tostado",
-      "Cacao negro",
-      "Sutil toque de ron"
-    ]
-  },
-  "10": {
-    "name": "Caja de chocolates de temporada",
-    "shortDescription": "Una cuidada selección de temporada, disponible por tiempo limitado.",
-    "longDescription": "Cuatro veces al año, nuestros chocolateros crean una caja de temporada exclusiva inspirada en lo mejor de la naturaleza. Esta edición presenta especias de invierno: ganache de canela, chocolate negro infusionado con clavo de olor y una cálida trufa de cardamomo. Cada caja está numerada e incluye una tarjeta que describe la inspiración de la temporada.",
-    "ingredients": "Chocolate negro, chocolate con leche, crema, manteca, canela, extracto de clavo de olor, cardamomo, azúcar.",
-    "flavorNotes": [
-      "Canela",
-      "Clavo de olor",
-      "Cardamomo",
-      "Cacao negro"
-    ]
-  }
-});
-
 let catalogLanguage = detectCatalogLanguage();
 const catalogStaticNodes = [];
 const catalogStaticAttributes = [];
@@ -360,8 +244,14 @@ function localizedCatalogCopy(copy) {
 }
 
 function localizedProduct(product, language = catalogLanguage) {
-  const translated = language === 'es' ? CATALOG_PRODUCT_ES[product.id] || {} : {};
-  return { ...product, ...translated,
+  const english = product.translations.en;
+  const translated = product.translations[language] || {};
+  return { ...product,
+    name: translated.name ?? english.name,
+    shortDescription: translated.shortDescription ?? english.shortDescription,
+    longDescription: translated.longDescription ?? english.longDescription,
+    ingredients: translated.ingredients ?? english.ingredients,
+    flavorNotes: translated.flavorNotes ?? english.flavorNotes,
     category: catalogText(product.category, {}, language), flavor: catalogText(product.flavor, {}, language),
     allergyTags: product.allergyTags.map(tag => catalogText(tag, {}, language)) };
 }
@@ -475,9 +365,9 @@ function setCatalogLanguage(locale, { persist = true } = {}) {
   setInquiryActionStatus(catalogText(inquiryStatus));
   document.getElementById('selection-live').textContent = '';
   const notice = getSelectionPersistenceNotice();
-  if (lastToastName) {
-    const product = products.find(product => product.name === lastToastName);
-    const name = product ? localizedProduct(product).name : lastToastName;
+  if (lastToastProductId !== null) {
+    const product = products.find(product => product.id === lastToastProductId);
+    const name = product ? localizedProduct(product).name : String(lastToastProductId);
     document.getElementById('toast-body-text').textContent = catalogText('"{name}" added to selection.', { name }) + (notice ? ` ${notice}` : '');
   } else if (notice && selectionPersistence.noticeShown) document.getElementById('toast-body-text').textContent = notice;
   document.getElementById('catalog-language-status').textContent = saved ? '' : catalogText('Language changes apply only to this visit because saving is unavailable.');
