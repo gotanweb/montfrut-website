@@ -35,6 +35,70 @@ const selectionPersistence = {
 };
 let modalSelection = null;
 let productModalReturnFocus = null;
+let selectionEditKey = null;
+let pendingSelectionDetails = null;
+let selectionDetailsReturn = null;
+let selectionPanelFocus = null;
+// Source phrases use localized getters; their ES equivalents live in i18n.js.
+const SELECTION_COPY = localizedCatalogCopy({
+  add: 'Add to Selection', save: 'Save changes', remove: 'Remove', edit: 'Review options', details: 'Details',
+  missing: 'Product no longer listed', unavailable: 'Unavailable', quantity: 'Quantity',
+  unitPrice: 'Unit price', lineTotal: 'Line total', excluded: 'Not included in the valid subtotal.',
+  unsafe: 'The amount exceeds the supported calculation range. Please reduce quantities.',
+  invalidAction: 'This change is not available. Please review the item or remove it.',
+  protected: 'Changes apply only to this visit. The protected saved selection has not been replaced.',
+  memoryOnly: 'Changes apply only to this visit because saving is unavailable.',
+  editNote: 'Review the options below. Save changes updates this selected item and keeps its quantity. Unavailable or removed choices are not preselected.',
+  updated: 'Selection updated.', removed: 'Item removed.', cleared: 'Selection cleared.',
+  validUnits: 'Valid units', subtotal: 'Estimated subtotal', priceUpdated: 'Price updated',
+  decrease: 'Decrease quantity of', increase: 'Increase quantity of', removeOptions: 'and these options',
+  issues: {
+    product_missing: 'This product is no longer listed.', product_unavailable: 'This product is currently unavailable.',
+    product_coming_soon: 'Coming soon. This item cannot currently be selected.',
+    invalid_product_status: 'Availability needs review.', variant_group_missing: 'A saved option group is no longer listed.',
+    variant_option_missing: 'A saved option is no longer listed.', variant_option_unavailable: 'A saved option is unavailable.',
+    required_configuration_invalid: 'Required options need review.', single_configuration_invalid: 'Choose one option for a group that now allows only one.',
+    invalid_price: 'The current price is unavailable.', configuration_invalid: 'This configuration needs review.'
+  }
+});
+// Official contact reused from links/index.html and links/en/index.html (digits only).
+const INQUIRY_WHATSAPP_NUMBER = '19174740694';
+const INQUIRY_LIMITS = { name: 100, company: 120, comments: 1000, message: 6000, url: 12000 };
+const INQUIRY_FIELDS = { name: 'inquiry-name', company: 'inquiry-company', eventDate: 'inquiry-event-date', comments: 'inquiry-comments' };
+const INQUIRY_UI = localizedCatalogCopy({
+  name: 'Please enter your full name.',
+  text: 'Please use valid text without control characters.',
+  length: limit => catalogText('Please use no more than {limit} characters.', { limit }),
+  date: 'Please enter a valid calendar date.',
+  empty: 'Select at least one available product with valid options before making an inquiry.',
+  overflow: 'The estimated amount cannot be calculated safely. Please reduce quantities before making an inquiry.',
+  excluded: count => catalogText('{count} invalid selection line(s) will not be included. You can review or remove them above.', { count }),
+  tooLong: 'This inquiry is too long to open reliably. Please shorten comments or include fewer configurations.',
+  hint: 'Complete the required name and correct any field errors to continue.',
+  ready: 'Your inquiry will include only valid items at current estimated prices.',
+  opening: 'WhatsApp opening requested. Review and send the message there manually. If it does not open, use Copy Inquiry Message. Nothing has been ordered or reserved.',
+  openFailed: 'WhatsApp could not be opened. Use Copy Inquiry Message and paste it into WhatsApp manually.',
+  copied: 'Inquiry message copied. Paste it into WhatsApp, review it and send it manually.',
+  copyFailed: 'The message could not be copied. Clipboard access requires a secure connection and browser permission. You can still try opening WhatsApp.'
+});
+const INQUIRY_MESSAGES = {
+  es: {
+    greeting: 'Hola, me interesan los productos de Montfrut y quisiera realizar una consulta.',
+    name: 'Nombre', company: 'Empresa', date: 'Fecha del evento', products: 'Productos de interés',
+    quantity: 'Cantidad', unit: 'Precio unitario estimado', line: 'Importe estimado',
+    subtotal: 'Subtotal estimado', comments: 'Comentarios adicionales'
+  },
+  en: {
+    greeting: 'Hello, I am interested in Montfrut products and would like to make an inquiry.',
+    name: 'Full name', company: 'Company', date: 'Event date', products: 'Products of interest',
+    quantity: 'Quantity', unit: 'Estimated unit price', line: 'Estimated line total',
+    subtotal: 'Estimated subtotal', comments: 'Additional comments'
+  }
+};
+let inquiryCopyPending = false;
+let inquiryConsent = null;
+let inquiryConsentPanelReturn = null;
+let lastToastName = null;
 let activeCategories = [];
 let activeFlavors = [];
 let searchQuery = '';
@@ -63,7 +127,7 @@ function usdToCents(amount) {
 }
 
 function formatUsdCents(cents) {
-  if (cents === null) return 'Price unavailable';
+  if (cents === null) return catalogText('Price unavailable');
   const remainder = cents % 100;
   return `$${(cents - remainder) / 100}.${String(remainder).padStart(2, '0')}`;
 }
@@ -73,11 +137,11 @@ function isOptionAvailable(option) {
 }
 
 function getAvailabilityMessage(product) {
-  if (product.status === 'coming-soon') return 'Coming soon';
-  if (product.status !== 'available') return 'Unavailable';
-  if (usdToCents(product.price) === null) return 'Price unavailable';
+  if (product.status === 'coming-soon') return catalogText('Coming soon');
+  if (product.status !== 'available') return catalogText('Unavailable');
+  if (usdToCents(product.price) === null) return catalogText('Price unavailable');
   if (product.variants.some(group => group.required && !group.options.some(isOptionAvailable))) {
-    return 'Required options unavailable';
+    return catalogText('Required options unavailable');
   }
   return '';
 }
@@ -205,8 +269,8 @@ function updateSelectionCount() {
   const badge = document.getElementById('cart-count');
   badge.textContent = total;
   badge.classList.toggle('d-none', total === 0);
-  badge.setAttribute('aria-label', `${total} units selected`);
-  document.getElementById('selection-indicator').setAttribute('aria-label', `Selection: ${total} units`);
+  badge.setAttribute('aria-label', catalogText('{count} units selected', { count: total }));
+  document.getElementById('selection-indicator').setAttribute('aria-label', catalogText('Selection: {count} units', { count: total }));
 }
 
 function addToSelection(productId, configuration = [], quantity = 1) {
@@ -223,6 +287,7 @@ function addToSelection(productId, configuration = [], quantity = 1) {
   }
   updateSelectionCount();
   saveSelection();
+  renderMySelection();
   showToast(result.product.name);
   return result;
 }
@@ -238,10 +303,13 @@ function requestProductSelection(productId, trigger = null) {
 }
 
 function showToast(productName) {
+  lastToastName = productName;
   const toastEl = document.getElementById('cart-toast');
   const toastBody = document.getElementById('toast-body-text');
   const notice = getSelectionPersistenceNotice();
-  toastBody.textContent = `"${productName}" added to selection.${notice ? ` ${notice}` : ''}`;
+  const product = products.find(product => product.name === productName);
+  const name = product ? localizedProduct(product).name : productName;
+  toastBody.textContent = catalogText('"{name}" added to selection.', { name }) + (notice ? ` ${notice}` : '');
   if (notice) selectionPersistence.noticeShown = true;
   const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
   toast.show();
@@ -481,18 +549,534 @@ function saveSelection() {
 
 function getSelectionPersistenceNotice() {
   if (selectionPersistence.mode === 'protected') {
-    return 'Saved selection data needs review and has been preserved. New selections are kept only for this visit.';
+    return catalogText('Saved selection data needs review and has been preserved. New selections are kept only for this visit.');
   }
   return selectionPersistence.mode === 'memory-only'
-    ? 'Selection cannot be saved on this device. It is kept only for this visit.' : '';
+    ? catalogText('Selection cannot be saved on this device. It is kept only for this visit.') : '';
 }
 
 function showSelectionPersistenceNotice() {
   const message = getSelectionPersistenceNotice();
   if (!message || selectionPersistence.noticeShown) return;
   selectionPersistence.noticeShown = true;
+  lastToastName = null;
   document.getElementById('toast-body-text').textContent = message;
   bootstrap.Toast.getOrCreateInstance(document.getElementById('cart-toast')).show();
+}
+
+/* My Selection derives rows and totals from selectedItems; it owns no quantities. */
+function getSelectionLineTotalCents(item) {
+  const cents = item.currentUnitPriceCents;
+  if (!isStoredCentAmount(cents) || !Number.isSafeInteger(item.quantity) || item.quantity < 1 ||
+      (cents > 0 && item.quantity > Math.floor(Number.MAX_SAFE_INTEGER / cents))) return null;
+  const total = cents * item.quantity;
+  return Number.isSafeInteger(total) ? total : null;
+}
+
+function getSelectionSummary(review = getSelectionReview()) {
+  let validUnits = 0;
+  let subtotalCents = 0;
+  for (const item of review) {
+    if (!item.validForInquiry) continue;
+    validUnits += item.quantity;
+    const line = getSelectionLineTotalCents(item);
+    if (line === null || subtotalCents === null || subtotalCents > Number.MAX_SAFE_INTEGER - line) subtotalCents = null;
+    else subtotalCents += line;
+  }
+  return { validUnits, subtotalCents };
+}
+
+function findSelectionIndex(key) {
+  return selectedItems.findIndex(item => getConfigurationKey(item.productId, item.variants) === key);
+}
+
+function announceSelection(message) {
+  document.getElementById('selection-live').textContent = message;
+}
+
+function commitSelectionChange(message, focusKey = null, focusAction = null) {
+  updateSelectionCount();
+  saveSelection();
+  renderMySelection(focusKey, focusAction);
+  const summary = getSelectionSummary();
+  announceSelection(`${message} ${SELECTION_COPY.validUnits}: ${summary.validUnits}. ${SELECTION_COPY.subtotal}: ${summary.subtotalCents === null ? SELECTION_COPY.unavailable : formatUsdCents(summary.subtotalCents)}.`);
+}
+
+function changeSelectionQuantity(key, delta) {
+  const index = findSelectionIndex(key);
+  if (index < 0 || ![-1, 1].includes(delta)) return false;
+  const item = selectedItems[index];
+  if (delta === 1 && !validateSelection(item.productId, item.variants).valid) return false;
+  if (item.quantity === 1 && delta === -1) return removeSelectionItem(key);
+  if (!Number.isSafeInteger(item.quantity + delta)) return false;
+  item.quantity += delta;
+  commitSelectionChange(`${SELECTION_COPY.updated} ${SELECTION_COPY.quantity}: ${item.quantity}.`, key, delta === 1 ? 'increase' : 'decrease');
+  return true;
+}
+
+function removeSelectionItem(key) {
+  const index = findSelectionIndex(key);
+  if (index < 0) return false;
+  selectedItems.splice(index, 1);
+  const next = selectedItems[Math.min(index, selectedItems.length - 1)];
+  commitSelectionChange(SELECTION_COPY.removed, next ? getConfigurationKey(next.productId, next.variants) : null, 'remove');
+  return true;
+}
+
+function clearSelection(confirmed = false) {
+  if (confirmed !== true) return false;
+  selectedItems.length = 0;
+  document.getElementById('selection-clear-confirm').hidden = true;
+  commitSelectionChange(SELECTION_COPY.cleared);
+  return true;
+}
+
+function replaceSelectionConfiguration(key, configuration) {
+  const index = findSelectionIndex(key);
+  if (index < 0) return { valid: false, error: SELECTION_COPY.invalidAction };
+  const original = selectedItems[index];
+  const product = products.find(product => product.id === original.productId);
+  if (!product || product.status !== 'available') return { valid: false, error: SELECTION_COPY.invalidAction };
+  const result = validateConfiguration(product, configuration);
+  if (!result.valid) return result;
+  const newKey = getConfigurationKey(product.id, result.configuration);
+  const targetIndex = findSelectionIndex(newKey);
+  let quantity = original.quantity;
+  if (targetIndex >= 0 && targetIndex !== index) quantity += selectedItems[targetIndex].quantity;
+  if (!Number.isSafeInteger(quantity) || quantity < 1) return { valid: false, error: SELECTION_COPY.invalidAction };
+  const replacement = { productId: product.id, variants: canonicalizeConfiguration(result.configuration), quantity,
+    referenceUnitPriceCents: result.unitPriceCents };
+  const keep = targetIndex >= 0 ? Math.min(index, targetIndex) : index;
+  selectedItems[keep] = replacement;
+  if (targetIndex >= 0 && targetIndex !== index) selectedItems.splice(Math.max(index, targetIndex), 1);
+  commitSelectionChange(SELECTION_COPY.updated);
+  return { valid: true, key: newKey };
+}
+
+function selectionElement(tag, className, text) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (text !== undefined) element.textContent = text;
+  return element;
+}
+
+function selectionAction(action, key, text, label, disabled = false) {
+  const button = selectionElement('button', 'selection-panel__action', text);
+  button.type = 'button';
+  button.setAttribute('data-selection-action', action);
+  button.setAttribute('data-selection-key', key);
+  button.setAttribute('aria-label', label);
+  button.disabled = disabled;
+  return button;
+}
+
+function focusSelectionControl(key, action) {
+  const panel = document.getElementById('mySelection');
+  const buttons = [...panel.querySelectorAll('[data-selection-action]')];
+  const target = buttons.find(button => button.getAttribute('data-selection-key') === key &&
+    button.getAttribute('data-selection-action') === action && canReceiveFocus(button));
+  const fallback = buttons.find(button => button.getAttribute('data-selection-key') === key && canReceiveFocus(button));
+  const destination = target || fallback || [document.getElementById('selection-empty-explore'),
+    document.getElementById('selection-close')].find(canReceiveFocus);
+  if (destination) destination.focus({ preventScroll: true });
+}
+
+function renderMySelection(focusKey = null, focusAction = null) {
+  const panel = document.getElementById('mySelection');
+  if (!panel) return;
+  const list = document.getElementById('selection-items');
+  list.replaceChildren();
+  const review = getSelectionReview();
+  for (const item of review) {
+    const key = getConfigurationKey(item.productId, item.variants);
+    const product = products.find(product => product.id === item.productId);
+    const name = product ? localizedProduct(product).name : `${SELECTION_COPY.missing} (${item.productId})`;
+    const row = selectionElement('article', 'selection-panel__line');
+    const image = selectionElement(product ? 'img' : 'div', 'selection-panel__image', product ? undefined : '—');
+    if (product) { image.src = product.image; image.alt = name; image.loading = 'lazy'; image.width = 72; image.height = 72; }
+    row.appendChild(image);
+    const content = selectionElement('div', 'selection-panel__content');
+    content.appendChild(selectionElement('h3', '', name));
+    for (const selected of item.variants) {
+      const group = product && product.variants.find(group => group.id === selected.groupId);
+      const labels = selected.optionIds.map(id => {
+        const option = group && group.options.find(option => option.id === id);
+        return option ? variantLabel(option.label) : `${SELECTION_COPY.unavailable}: ${id}`;
+      });
+      content.appendChild(selectionElement('p', 'selection-panel__variants', `${group ? variantLabel(group.label) : selected.groupId}: ${labels.join(', ')}`));
+    }
+    for (const issue of item.issues) {
+      if (issue.code === 'price_changed') continue;
+      content.appendChild(selectionElement('p', 'selection-panel__notice', SELECTION_COPY.issues[issue.code] || SELECTION_COPY.invalidAction));
+    }
+    if (item.priceChanged) content.appendChild(selectionElement('p', 'selection-panel__notice',
+      `${SELECTION_COPY.priceUpdated}: ${formatUsdCents(item.referenceUnitPriceCents)} → ${formatUsdCents(item.currentUnitPriceCents)}.`));
+    if (!item.validForInquiry) content.appendChild(selectionElement('p', 'selection-panel__notice', SELECTION_COPY.excluded));
+    const lineTotal = getSelectionLineTotalCents(item);
+    content.appendChild(selectionElement('p', 'selection-panel__price', `${SELECTION_COPY.unitPrice}: ${formatUsdCents(item.currentUnitPriceCents)}`));
+    content.appendChild(selectionElement('p', 'selection-panel__price', `${SELECTION_COPY.lineTotal}: ${lineTotal === null ? (item.currentUnitPriceCents === null ? SELECTION_COPY.unavailable : SELECTION_COPY.unsafe) : formatUsdCents(lineTotal)}`));
+    const controls = selectionElement('div', 'selection-panel__controls');
+    const quantity = selectionElement('div', 'selection-panel__quantity');
+    quantity.setAttribute('role', 'group'); quantity.setAttribute('aria-label', `${SELECTION_COPY.quantity}: ${name}`);
+    quantity.appendChild(selectionAction('decrease', key, '−', `${SELECTION_COPY.decrease} ${name}`));
+    quantity.appendChild(selectionElement('span', '', item.quantity));
+    quantity.appendChild(selectionAction('increase', key, '+', `${SELECTION_COPY.increase} ${name}`,
+      !item.validForInquiry || !Number.isSafeInteger(getSelectedUnitCount() + 1)));
+    controls.appendChild(quantity);
+    controls.appendChild(selectionAction('remove', key, SELECTION_COPY.remove, `${SELECTION_COPY.remove} ${name} ${SELECTION_COPY.removeOptions}`));
+    if (product) {
+      const editable = product.status === 'available' && (product.variants.length > 0 || item.variants.length > 0);
+      controls.appendChild(selectionAction(editable ? 'edit' : 'details', key, editable ? SELECTION_COPY.edit : SELECTION_COPY.details,
+        `${editable ? SELECTION_COPY.edit : SELECTION_COPY.details}: ${name}`));
+    }
+    content.appendChild(controls); row.appendChild(content); list.appendChild(row);
+  }
+  document.getElementById('selection-empty').hidden = review.length !== 0;
+  document.getElementById('selection-clear').hidden = review.length === 0;
+  if (!review.length) document.getElementById('selection-clear-confirm').hidden = true;
+  const summary = getSelectionSummary(review);
+  document.getElementById('selection-valid-units').textContent = summary.validUnits;
+  document.getElementById('selection-subtotal').textContent = summary.subtotalCents === null ? SELECTION_COPY.unavailable : formatUsdCents(summary.subtotalCents);
+  const subtotalMessage = document.getElementById('selection-subtotal-message');
+  subtotalMessage.textContent = summary.subtotalCents === null ? SELECTION_COPY.unsafe : '';
+  subtotalMessage.hidden = summary.subtotalCents !== null;
+  const storageMessage = document.getElementById('selection-storage-message');
+  storageMessage.textContent = selectionPersistence.mode === 'protected' ? SELECTION_COPY.protected : selectionPersistence.mode === 'memory-only' ? SELECTION_COPY.memoryOnly : '';
+  storageMessage.hidden = !storageMessage.textContent;
+  setInquiryActionStatus('');
+  updateInquiryAvailability();
+  if (panel.classList.contains('show') && (focusKey !== null || !review.length)) focusSelectionControl(focusKey, focusAction);
+}
+
+function openMySelection() {
+  if (pendingSelectionDetails) return;
+  initializeSelectionPersistence();
+  renderMySelection();
+  bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('mySelection')).show(document.getElementById('selection-indicator'));
+}
+
+function openSelectionDetails(key, edit) {
+  const index = findSelectionIndex(key);
+  if (index < 0 || pendingSelectionDetails) return;
+  if (!products.some(product => product.id === selectedItems[index].productId)) return;
+  pendingSelectionDetails = { key, edit };
+  selectionDetailsReturn = { key, action: edit ? 'edit' : 'details', ready: false, scheduled: false, waitForModal: null };
+  bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('mySelection')).hide();
+}
+
+function queueSelectionPanelReturn() {
+  const context = selectionDetailsReturn;
+  if (!context || !context.ready || context.scheduled || context.waitForModal) return;
+  context.scheduled = true;
+  requestAnimationFrame(() => {
+    context.scheduled = false;
+    if (selectionDetailsReturn !== context || document.querySelector('.modal.show, .modal[aria-modal="true"]')) return;
+    selectionDetailsReturn = null;
+    selectionPanelFocus = { key: context.key, action: context.action };
+    openMySelection();
+  });
+}
+
+function initializeMySelection() {
+  const panel = document.getElementById('mySelection');
+  if (panel._selectionBound) return;
+  panel._selectionBound = true;
+  document.getElementById('selection-indicator').addEventListener('click', openMySelection);
+  panel.addEventListener('shown.bs.offcanvas', () => {
+    document.getElementById('selection-indicator').setAttribute('aria-expanded', 'true');
+    if (selectionPanelFocus) { focusSelectionControl(selectionPanelFocus.key, selectionPanelFocus.action); selectionPanelFocus = null; }
+    restoreInquiryConsentFocus();
+  });
+  panel.addEventListener('hidden.bs.offcanvas', () => {
+    document.getElementById('selection-indicator').setAttribute('aria-expanded', 'false');
+    document.getElementById('selection-clear-confirm').hidden = true;
+    const pending = pendingSelectionDetails; pendingSelectionDetails = null;
+    if (inquiryConsent && inquiryConsent.phase === 'closing-panel') {
+      requestAnimationFrame(showInquiryConsent);
+      return;
+    }
+    requestAnimationFrame(() => {
+      if (!pending) {
+        if (!document.querySelector('.modal.show, .modal[aria-modal="true"]') && canReceiveFocus(document.getElementById('selection-indicator'))) document.getElementById('selection-indicator').focus({ preventScroll: true });
+        return;
+      }
+      const index = findSelectionIndex(pending.key);
+      if (index < 0) { selectionDetailsReturn.ready = true; queueSelectionPanelReturn(); return; }
+      const item = selectedItems[index];
+      openProductModal(item.productId, document.getElementById('selection-indicator'));
+      if (!pending.edit) return;
+      selectionEditKey = pending.key;
+      for (const { group, inputs } of modalSelection.groups) {
+        const selected = item.variants.find(selected => selected.groupId === group.id);
+        const ids = selected ? selected.optionIds : [];
+        if (group.selection === 'single' && ids.length > 1) continue;
+        inputs.forEach(input => { input.checked = !input.disabled && ids.includes(input.value); });
+      }
+      document.getElementById('modal-selection-action-label').textContent = SELECTION_COPY.save;
+      document.getElementById('modal-add-to-cart').setAttribute('aria-label', `${SELECTION_COPY.save}: ${localizedProduct(products.find(product => product.id === item.productId)).name}`);
+      document.getElementById('selection-edit-note').textContent = SELECTION_COPY.editNote;
+      document.getElementById('selection-edit-note').hidden = false;
+      updateModalConfiguration(true);
+    });
+  });
+  document.addEventListener('hidden.bs.modal', event => {
+    if (!selectionDetailsReturn) return;
+    if (selectionDetailsReturn.waitForModal === event.target) selectionDetailsReturn.waitForModal = null;
+    queueSelectionPanelReturn();
+  });
+  panel.addEventListener('click', event => {
+    const button = event.target.closest('[data-selection-action]');
+    if (!button || button.disabled) return;
+    const key = button.getAttribute('data-selection-key');
+    const action = button.getAttribute('data-selection-action');
+    if (action === 'edit' || action === 'details') openSelectionDetails(key, action === 'edit');
+    else if (['remove', 'increase', 'decrease'].includes(action)) {
+      const changed = action === 'remove' ? removeSelectionItem(key) : changeSelectionQuantity(key, action === 'increase' ? 1 : -1);
+      if (!changed) announceSelection(SELECTION_COPY.invalidAction);
+    }
+  });
+  document.getElementById('selection-clear').addEventListener('click', () => {
+    document.getElementById('selection-clear-confirm').hidden = false;
+    document.getElementById('selection-cancel-clear').focus({ preventScroll: true });
+  });
+  document.getElementById('selection-cancel-clear').addEventListener('click', () => {
+    document.getElementById('selection-clear-confirm').hidden = true;
+    document.getElementById('selection-clear').focus({ preventScroll: true });
+  });
+  document.getElementById('selection-confirm-clear').addEventListener('click', () => clearSelection(true));
+  initializeInquiryForm();
+  renderMySelection();
+}
+
+/* CAT-IMP-003B: transient customer data; no persistence or automatic sending. */
+function resolveInquiryLanguage() {
+  return catalogLanguage;
+}
+
+function isInquiryDateValid(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return year > 0 && month >= 1 && month <= 12 && day >= 1 && day <= days[month - 1];
+}
+
+function validateInquiryCustomer(raw) {
+  const data = {}, errors = {};
+  for (const field of Object.keys(INQUIRY_FIELDS)) {
+    if (raw && raw[field] === undefined && field !== 'name') { data[field] = ''; continue; }
+    if (!raw || typeof raw[field] !== 'string') { errors[field] = field === 'name' ? INQUIRY_UI.name : INQUIRY_UI.text; continue; }
+    const value = raw[field].replace(/\r\n?/g, '\n');
+    const controls = field === 'comments' ? /[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/ : /[\u0000-\u001f\u007f-\u009f]/;
+    const brokenUnicode = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(^|[^\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+    if (controls.test(value) || brokenUnicode.test(value)) errors[field] = INQUIRY_UI.text;
+    else if (INQUIRY_LIMITS[field] && value.length > INQUIRY_LIMITS[field]) errors[field] = INQUIRY_UI.length(INQUIRY_LIMITS[field]);
+    data[field] = value.trim();
+  }
+  if (!errors.name && !data.name) errors.name = INQUIRY_UI.name;
+  if (!errors.eventDate && (raw.eventDateBadInput || (data.eventDate && !isInquiryDateValid(data.eventDate)))) errors.eventDate = INQUIRY_UI.date;
+  return { valid: Object.keys(errors).length === 0, data, errors };
+}
+
+function getInquirySelection() {
+  const items = [];
+  let excludedCount = 0, validUnits = 0, subtotalCents = 0;
+  for (const item of getSelectionReview()) {
+    if (!item.validForInquiry || !Number.isSafeInteger(item.quantity) || item.quantity < 1) { excludedCount++; continue; }
+    const lineTotalCents = getSelectionLineTotalCents(item);
+    if (lineTotalCents === null || subtotalCents > Number.MAX_SAFE_INTEGER - lineTotalCents ||
+        validUnits > Number.MAX_SAFE_INTEGER - item.quantity) {
+      return { valid: false, reason: INQUIRY_UI.overflow, items: [], excludedCount };
+    }
+    const product = products.find(product => product.id === item.productId);
+    items.push({ ...item, product, lineTotalCents });
+    validUnits += item.quantity;
+    subtotalCents += lineTotalCents;
+  }
+  return { valid: items.length > 0, reason: items.length ? '' : INQUIRY_UI.empty, items, excludedCount, validUnits, subtotalCents };
+}
+
+function buildInquiryMessage(rawCustomer, language = resolveInquiryLanguage()) {
+  const customer = validateInquiryCustomer(rawCustomer);
+  const selection = getInquirySelection();
+  if (!customer.valid || !selection.valid) return { valid: false, errors: customer.errors, error: selection.reason };
+  language = language === 'es' ? 'es' : 'en';
+  const text = INQUIRY_MESSAGES[language], data = customer.data;
+  const lines = [text.greeting, '', `${text.name}: ${data.name}`];
+  if (data.company) lines.push(`${text.company}: ${data.company}`);
+  if (data.eventDate) {
+    const [year, month, day] = data.eventDate.split('-');
+    lines.push(`${text.date}: ${language === 'es' ? `${day}/${month}/${year}` : data.eventDate}`);
+  }
+  lines.push('', `${text.products}:`);
+  for (const [index, item] of selection.items.entries()) {
+    lines.push('', `${index + 1}. ${localizedProduct(item.product, language).name}`);
+    for (const configured of item.variants) {
+      const group = item.product.variants.find(group => group.id === configured.groupId);
+      lines.push(`  ${group.label[language]}: ${configured.optionIds.map(id => group.options.find(option => option.id === id).label[language]).join(', ')}`);
+    }
+    lines.push(`  ${text.quantity}: ${item.quantity}`, `  ${text.unit}: ${formatUsdCents(item.currentUnitPriceCents)} USD`,
+      `  ${text.line}: ${formatUsdCents(item.lineTotalCents)} USD`);
+  }
+  lines.push('', `${text.subtotal}: ${formatUsdCents(selection.subtotalCents)} USD`);
+  if (data.comments) lines.push('', `${text.comments}:`, data.comments);
+  const message = lines.join('\n');
+  const url = `https://wa.me/${INQUIRY_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  if (message.length > INQUIRY_LIMITS.message || url.length > INQUIRY_LIMITS.url) return { valid: false, errors: {}, error: INQUIRY_UI.tooLong };
+  return { valid: true, errors: {}, message, url, language };
+}
+
+function readInquiryCustomer() {
+  const raw = {};
+  for (const [field, id] of Object.entries(INQUIRY_FIELDS)) raw[field] = document.getElementById(id).value;
+  raw.eventDateBadInput = Boolean(document.getElementById(INQUIRY_FIELDS.eventDate).validity?.badInput);
+  return raw;
+}
+
+function showInquiryFieldErrors(errors, revealAll = false) {
+  for (const [field, id] of Object.entries(INQUIRY_FIELDS)) {
+    const input = document.getElementById(id), error = document.getElementById(`${id}-error`);
+    if (revealAll) input._inquiryTouched = true;
+    const message = input._inquiryTouched ? errors[field] || '' : '';
+    input.setAttribute('aria-invalid', message ? 'true' : 'false');
+    error.textContent = catalogText(message); error.hidden = !message;
+  }
+}
+
+function updateInquiryAvailability() {
+  if (!document.getElementById('selection-inquiry-form')) return;
+  const customer = validateInquiryCustomer(readInquiryCustomer()), selection = getInquirySelection();
+  showInquiryFieldErrors(customer.errors);
+  document.getElementById('inquiry-whatsapp').disabled = !customer.valid || !selection.valid;
+  document.getElementById('inquiry-copy').disabled = inquiryCopyPending || !customer.valid || !selection.valid;
+  const message = document.getElementById('inquiry-selection-message');
+  message.textContent = selection.reason || (selection.excludedCount ? INQUIRY_UI.excluded(selection.excludedCount) : '');
+  message.hidden = !message.textContent;
+  document.getElementById('inquiry-form-hint').textContent = customer.valid ? INQUIRY_UI.ready : INQUIRY_UI.hint;
+}
+
+function setInquiryActionStatus(message) {
+  document.getElementById('inquiry-action-status').textContent = message;
+}
+
+function prepareInquiryAction() {
+  const result = buildInquiryMessage(readInquiryCustomer());
+  showInquiryFieldErrors(result.errors, true);
+  if (!result.valid) {
+    const message = document.getElementById('inquiry-selection-message');
+    message.textContent = result.error || ''; message.hidden = !message.textContent;
+    const field = Object.keys(INQUIRY_FIELDS).find(field => result.errors[field]);
+    const target = field ? document.getElementById(INQUIRY_FIELDS[field]) : message;
+    target.focus();
+  }
+  return result;
+}
+
+function openInquiryWhatsApp(event) {
+  event.preventDefault();
+  requestInquiryConsent('whatsapp');
+}
+
+function copyInquiryMessage() {
+  requestInquiryConsent('copy');
+}
+
+function requestInquiryConsent(action) {
+  if (inquiryConsent || inquiryConsentPanelReturn || inquiryCopyPending || !['whatsapp', 'copy'].includes(action)) return;
+  setInquiryActionStatus('');
+  const result = prepareInquiryAction();
+  if (!result.valid) return;
+  inquiryConsent = { action, triggerId: action === 'copy' ? 'inquiry-copy' : 'inquiry-whatsapp', phase: 'closing-panel', validation: null };
+  const panel = document.getElementById('mySelection');
+  if (panel.classList.contains('show')) bootstrap.Offcanvas.getOrCreateInstance(panel).hide();
+  else showInquiryConsent();
+}
+
+function showInquiryConsent() {
+  if (!inquiryConsent || inquiryConsent.phase !== 'closing-panel') return;
+  inquiryConsent.phase = 'waiting';
+  document.getElementById('inquiry-consent-accept').disabled = false;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('inquiryConsentModal')).show();
+}
+
+function acceptInquiryConsent() {
+  if (!inquiryConsent || inquiryConsent.phase !== 'waiting') return;
+  // Consume this operation before executing anything; repeated clicks cannot repeat it.
+  inquiryConsent.phase = 'accepted';
+  document.getElementById('inquiry-consent-accept').disabled = true;
+  const result = buildInquiryMessage(readInquiryCustomer());
+  if (!result.valid) inquiryConsent.validation = result;
+  else if (inquiryConsent.action === 'whatsapp') executeInquiryWhatsApp(result);
+  else executeInquiryCopy(result);
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('inquiryConsentModal')).hide();
+}
+
+function executeInquiryWhatsApp(result) {
+  try {
+    // Called synchronously by the acceptance click, before any modal transition or await.
+    window.open(result.url, '_blank', 'noopener,noreferrer');
+    setInquiryActionStatus(INQUIRY_UI.opening);
+  } catch { setInquiryActionStatus(INQUIRY_UI.openFailed); }
+}
+
+async function executeInquiryCopy(result) {
+  inquiryCopyPending = true;
+  updateInquiryAvailability();
+  try {
+    if (!window.navigator?.clipboard?.writeText) throw new Error('Clipboard unavailable');
+    await window.navigator.clipboard.writeText(result.message);
+    setInquiryActionStatus(INQUIRY_UI.copied);
+  } catch { setInquiryActionStatus(INQUIRY_UI.copyFailed); }
+  finally { inquiryCopyPending = false; updateInquiryAvailability(); }
+}
+
+function restoreInquiryConsentFocus() {
+  const context = inquiryConsentPanelReturn;
+  if (!context) return;
+  inquiryConsentPanelReturn = null;
+  if (context.validation) {
+    const current = buildInquiryMessage(readInquiryCustomer());
+    showInquiryFieldErrors(current.errors, true);
+    const message = document.getElementById('inquiry-selection-message');
+    message.textContent = current.error || ''; message.hidden = !message.textContent;
+    const field = Object.keys(INQUIRY_FIELDS).find(field => current.errors[field]);
+    if (current.valid) {
+      setInquiryActionStatus(catalogText('The inquiry changed. Please review it and try again.'));
+      document.getElementById(context.triggerId).focus();
+    } else (field ? document.getElementById(INQUIRY_FIELDS[field]) : message).focus();
+    return;
+  }
+  const target = [document.getElementById(context.triggerId), document.getElementById('selection-close')].find(canReceiveFocus);
+  if (target) target.focus({ preventScroll: true });
+}
+
+function initializeInquiryForm() {
+  const form = document.getElementById('selection-inquiry-form');
+  if (form._inquiryBound) return;
+  form._inquiryBound = true;
+  form.addEventListener('submit', openInquiryWhatsApp);
+  document.getElementById('inquiry-copy').addEventListener('click', copyInquiryMessage);
+  const modal = document.getElementById('inquiryConsentModal');
+  modal.addEventListener('shown.bs.modal', () => document.getElementById('inquiry-consent-reject').focus());
+  modal.addEventListener('hidden.bs.modal', () => {
+    const context = inquiryConsent;
+    inquiryConsent = null;
+    if (!context) return;
+    inquiryConsentPanelReturn = { triggerId: context.triggerId, validation: context.validation };
+    requestAnimationFrame(() => {
+      const status = document.getElementById('inquiry-action-status').textContent;
+      openMySelection();
+      setInquiryActionStatus(status);
+    });
+  });
+  document.getElementById('inquiry-consent-accept').addEventListener('click', acceptInquiryConsent);
+  for (const id of Object.values(INQUIRY_FIELDS)) {
+    const input = document.getElementById(id);
+    const refresh = () => { setInquiryActionStatus(''); updateInquiryAvailability(); };
+    input.addEventListener('input', refresh);
+    input.addEventListener('change', refresh);
+    input.addEventListener('blur', () => { input._inquiryTouched = true; updateInquiryAvailability(); });
+  }
 }
 
 
@@ -516,12 +1100,12 @@ function getFilteredProducts() {
   // Search
   if (searchQuery.trim() !== '') {
     const q = searchQuery.toLowerCase();
-    filtered = filtered.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.shortDescription.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q) ||
-      p.flavor.toLowerCase().includes(q)
-    );
+    filtered = filtered.filter(p => {
+      const spanish = localizedProduct(p, 'es');
+      return [p.name, p.shortDescription, p.category, p.flavor,
+        spanish.name, spanish.shortDescription, spanish.category, spanish.flavor]
+        .some(text => text.toLowerCase().includes(q));
+    });
   }
 
   // Sort
@@ -575,7 +1159,7 @@ function updateFilters() {
    -------------------------------------------------------------------------- */
 
 function allergyTagsHTML(tags) {
-  return tags.map(tag => `<span class="allergy-tag">${tag}</span>`).join('');
+  return tags.map(tag => `<span class="allergy-tag">${catalogText(tag)}</span>`).join('');
 }
 
 function availabilityHTML(product) {
@@ -584,11 +1168,12 @@ function availabilityHTML(product) {
 }
 
 function renderProductCard(product) {
+  product = localizedProduct(product);
   return `
     <div class="product-card" data-id="${product.id}">
       <div class="product-card__img-wrap">
         <img src="${product.image}" alt="${product.name}" class="product-card__img" loading="lazy">
-        ${product.isBestSeller ? '<span class="product-card__badge badge-bestseller">Best Seller</span>' : ''}
+        ${product.isBestSeller ? `<span class="product-card__badge badge-bestseller">${catalogText('Best Seller')}</span>` : ''}
       </div>
       <div class="product-card__body">
         <h3 class="product-card__name">${product.name}</h3>
@@ -598,11 +1183,11 @@ function renderProductCard(product) {
         <div class="product-card__footer">
           <span class="product-card__price">${formatUsdCents(usdToCents(product.price))}</span>
           <div class="product-card__actions">
-            <button class="btn-add-to-cart" data-id="${product.id}" aria-label="Add ${product.name} to selection"${getAvailabilityMessage(product) ? ' disabled' : ''}>
+            <button class="btn-add-to-cart" data-id="${product.id}" aria-label="${catalogText('Add {name} to selection', { name: product.name })}"${getAvailabilityMessage(product) ? ' disabled' : ''}>
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-              Add to Selection
+              ${catalogText('Add to Selection')}
             </button>
-            <button class="btn-details" data-id="${product.id}" aria-label="View details for ${product.name}">Details</button>
+            <button class="btn-details" data-id="${product.id}" aria-label="${catalogText('View details for {name}', { name: product.name })}">${catalogText('Details')}</button>
           </div>
         </div>
       </div>
@@ -611,9 +1196,10 @@ function renderProductCard(product) {
 }
 
 function renderBestSellerCard(product) {
+  product = localizedProduct(product);
   return `
     <div class="bestseller-card">
-      <div class="bestseller-card__badge">BEST SELLER</div>
+      <div class="bestseller-card__badge">${catalogText('BEST SELLER')}</div>
       <div class="bestseller-card__img-wrap">
         <img src="${product.image}" alt="${product.name}" loading="lazy">
       </div>
@@ -623,11 +1209,11 @@ function renderBestSellerCard(product) {
         <div class="bestseller-card__tags">${allergyTagsHTML(product.allergyTags)}</div>
         ${availabilityHTML(product)}
         <div class="bestseller-card__price">${formatUsdCents(usdToCents(product.price))}</div>
-        <button class="btn-add-to-cart btn-add-to-cart--light" data-id="${product.id}" aria-label="Add ${product.name} to selection"${getAvailabilityMessage(product) ? ' disabled' : ''}>
+        <button class="btn-add-to-cart btn-add-to-cart--light" data-id="${product.id}" aria-label="${catalogText('Add {name} to selection', { name: product.name })}"${getAvailabilityMessage(product) ? ' disabled' : ''}>
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-          Add to Selection
+          ${catalogText('Add to Selection')}
         </button>
-        <button class="btn-details btn-details--light mt-2" data-id="${product.id}" aria-label="View details for ${product.name}">Details</button>
+        <button class="btn-details btn-details--light mt-2" data-id="${product.id}" aria-label="${catalogText('View details for {name}', { name: product.name })}">${catalogText('Details')}</button>
       </div>
     </div>
   `;
@@ -692,7 +1278,9 @@ function renderSpecialCollection() {
   const track = document.getElementById('special-track');
   if (!track) return;
 
-  track.innerHTML = specialProducts.map(p => `
+  track.innerHTML = specialProducts.map(product => {
+    const p = localizedProduct(product);
+    return `
     <div class="special-item">
       <div class="special-item__img-wrap">
         <img src="${p.image}" alt="${p.name}" loading="lazy">
@@ -703,11 +1291,12 @@ function renderSpecialCollection() {
         ${availabilityHTML(p)}
         <div class="special-item__footer">
           <span class="special-item__price">${formatUsdCents(usdToCents(p.price))}</span>
-          <button class="btn-details btn-details--mini" data-id="${p.id}" aria-label="View details for ${p.name}">Details</button>
+          <button class="btn-details btn-details--mini" data-id="${p.id}" aria-label="${catalogText('View details for {name}', { name: p.name })}">${catalogText('Details')}</button>
         </div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   carouselIndex = 0;
   if (track) track.style.transform = 'translateX(0)';
@@ -802,6 +1391,12 @@ function trackProductModalFocus(event) {
 function restoreProductModalFocus() {
   const state = productModalReturnFocus;
   productModalReturnFocus = null;
+  if (selectionDetailsReturn) {
+    selectionDetailsReturn.ready = true;
+    if (state && state.nextModalEvent && !state.nextModalEvent.defaultPrevented) selectionDetailsReturn.waitForModal = state.nextModalEvent.target;
+    queueSelectionPanelReturn();
+    return;
+  }
   if (!state) return;
   // Let Bootstrap's hidden handlers finish, including its native focus restorer.
   requestAnimationFrame(() => {
@@ -824,23 +1419,23 @@ function renderVariantControls(product) {
     fieldset.disabled = product.status !== 'available';
     fieldset.tabIndex = -1;
     const legend = document.createElement('legend');
-    legend.textContent = `${group.label.en} (${group.required ? 'Required' : 'Optional'})`;
+    legend.textContent = `${variantLabel(group.label)} (${catalogText(group.required ? 'Required' : 'Optional')})`;
     fieldset.appendChild(legend);
     const hint = document.createElement('p');
     hint.className = 'modal-text';
     hint.id = `variant-hint-${groupIndex}`;
-    hint.textContent = group.selection === 'single' ? 'Choose one option.' : 'Choose one or more options.';
-    if (!group.required) hint.textContent += ' You may leave this group unselected.';
+    hint.textContent = catalogText(group.selection === 'single' ? 'Choose one option.' : 'Choose one or more options.');
+    if (!group.required) hint.textContent += ` ${catalogText('You may leave this group unselected.')}`;
     fieldset.appendChild(hint);
     const error = document.createElement('p');
     error.id = `variant-error-${groupIndex}`;
     error.className = 'selection-validation';
     error.setAttribute('aria-live', 'polite');
     error.hidden = true;
-    const controls = { group, fieldset, error, inputs: [] };
+    const controls = { group, fieldset, error, legend, hint, labels: [], inputs: [] };
     // Optional radio groups include an explicit way to return to no extras.
     const options = group.selection === 'single' && !group.required
-      ? [{ id: '', label: { en: 'No extra' }, priceAdjustment: 0, available: true }, ...group.options]
+      ? [{ id: '', label: { en: 'No extra', es: 'Sin adicional' }, priceAdjustment: 0, available: true }, ...group.options]
       : group.options;
     options.forEach(option => {
       const label = document.createElement('label');
@@ -854,11 +1449,12 @@ function renderVariantControls(product) {
       input.addEventListener('change', () => updateModalConfiguration());
       const text = document.createElement('span');
       const price = isOptionAvailable(option) ? ` (+${formatUsdCents(usdToCents(option.priceAdjustment))})` : '';
-      text.textContent = `${option.label.en}${price}${input.disabled ? ' — Unavailable' : ''}`;
+      text.textContent = `${variantLabel(option.label)}${price}${input.disabled ? ` — ${catalogText('Unavailable')}` : ''}`;
       label.appendChild(input);
       label.appendChild(text);
       fieldset.appendChild(label);
       controls.inputs.push(input);
+      controls.labels.push({ option, text, input });
     });
     fieldset.appendChild(error);
     container.appendChild(fieldset);
@@ -885,7 +1481,7 @@ function updateModalConfiguration(showErrors = false) {
   for (const { group, fieldset, error, inputs } of modalSelection.groups) {
     const impossible = group.required && !group.options.some(isOptionAvailable);
     const message = (modalSelection.attempted || impossible) ? result.groupErrors.get(group.id) || '' : '';
-    error.textContent = message;
+    error.textContent = catalogText(message);
     error.hidden = !message;
     fieldset.setAttribute('aria-invalid', message ? 'true' : 'false');
     inputs.forEach(input => input.setAttribute('aria-invalid', message ? 'true' : 'false'));
@@ -896,7 +1492,7 @@ function updateModalConfiguration(showErrors = false) {
   const button = document.getElementById('modal-add-to-cart');
   button.disabled = Boolean(availability);
   const status = document.getElementById('modal-selection-message');
-  status.textContent = availability || (modalSelection.attempted ? result.error : '');
+  status.textContent = availability || (modalSelection.attempted ? catalogText(result.error) : '');
   status.hidden = !status.textContent;
   return { ...result, configuration };
 }
@@ -909,25 +1505,35 @@ function submitModalSelection() {
     if (invalid) (invalid.inputs.find(input => !input.disabled) || invalid.fieldset).focus();
     return;
   }
-  const added = addToSelection(modalSelection.productId, result.configuration);
+  const added = selectionEditKey ? replaceSelectionConfiguration(selectionEditKey, result.configuration)
+    : addToSelection(modalSelection.productId, result.configuration);
+  if (added.valid && selectionEditKey) {
+    if (selectionDetailsReturn) selectionDetailsReturn.key = added.key;
+    selectionEditKey = null;
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('productModal')).hide();
+  }
   if (!added.valid) {
     const message = document.getElementById('modal-selection-message');
-    message.textContent = added.error;
+    message.textContent = catalogText(added.error);
     message.hidden = false;
   }
 }
 
 function openProductModal(productId, trigger = null) {
-  const product = products.find(p => p.id === productId);
-  if (!product) return;
+  const original = products.find(p => p.id === productId);
+  if (!original) return;
+  const product = localizedProduct(original);
   const origin = trigger || document.activeElement;
+  selectionEditKey = null;
+  document.getElementById('modal-selection-action-label').textContent = SELECTION_COPY.add;
+  document.getElementById('selection-edit-note').hidden = true;
 
   // Populate modal fields
   document.getElementById('modal-title').textContent = product.name;
   document.getElementById('modal-price').textContent = formatUsdCents(usdToCents(product.price));
   document.getElementById('modal-description').textContent = product.longDescription;
   document.getElementById('modal-tags').innerHTML = allergyTagsHTML(product.allergyTags) + 
-    `<a href="#" class="modal-allergy-link" data-bs-toggle="modal" data-bs-target="#allergiesModal">Allergies information</a>`;
+    `<a href="#" class="modal-allergy-link" data-bs-toggle="modal" data-bs-target="#allergiesModal">${catalogText('Allergies information')}</a>`;
   document.getElementById('modal-flavor-notes').innerHTML = product.flavorNotes.map(n => `<span class="flavor-note">${n}</span>`).join('');
   document.getElementById('modal-ingredients').textContent = product.ingredients;
 
@@ -937,15 +1543,15 @@ function openProductModal(productId, trigger = null) {
   const carouselThumbs = document.getElementById('modal-thumbnails');
   carouselInner.innerHTML = product.galleryImages.map((img, idx) => `
     <div class="carousel-item ${idx === 0 ? 'active' : ''}">
-      <img src="${img}" class="d-block w-100 modal-carousel-img" alt="${product.name} — photo ${idx + 1}">
+      <img src="${img}" class="d-block w-100 modal-carousel-img" alt="${catalogText('{name} — photo {number}', { name: product.name, number: idx + 1 })}">
     </div>
   `).join('');
   carouselIndicators.innerHTML = product.galleryImages.map((_, idx) => `
-    <button type="button" data-bs-target="#modalCarousel" data-bs-slide-to="${idx}" ${idx === 0 ? 'class="active" aria-current="true"' : ''} aria-label="Slide ${idx + 1}"></button>
+    <button type="button" data-bs-target="#modalCarousel" data-bs-slide-to="${idx}" ${idx === 0 ? 'class="active" aria-current="true"' : ''} aria-label="${catalogText('Slide {number}', { number: idx + 1 })}"></button>
   `).join('');
   if (carouselThumbs) {
     carouselThumbs.innerHTML = product.galleryImages.map((img, idx) => `
-      <button class="modal-thumbnail ${idx === 0 ? 'active' : ''}" type="button" data-bs-target="#modalCarousel" data-bs-slide-to="${idx}" aria-label="Show ${product.name} photo ${idx + 1}">
+      <button class="modal-thumbnail ${idx === 0 ? 'active' : ''}" type="button" data-bs-target="#modalCarousel" data-bs-slide-to="${idx}" aria-label="${catalogText('Show {name} photo {number}', { name: product.name, number: idx + 1 })}">
         <img src="${img}" alt="" loading="lazy">
       </button>
     `).join('');
@@ -955,7 +1561,7 @@ function openProductModal(productId, trigger = null) {
   const modalCartBtn = document.getElementById('modal-add-to-cart');
   modalCartBtn.setAttribute('data-id', product.id);
   modalCartBtn.setAttribute('data-name', product.name);
-  modalCartBtn.setAttribute('aria-label', `Add ${product.name} to selection`);
+  modalCartBtn.setAttribute('aria-label', catalogText('Add {name} to selection', { name: product.name }));
   renderVariantControls(product);
 
   // Show modal
@@ -1072,12 +1678,15 @@ function syncOffcanvasFilters() {
    -------------------------------------------------------------------------- */
 
 document.addEventListener('DOMContentLoaded', () => {
+  initializeCatalogLanguage();
   initializeSelectionPersistence();
   updateSelectionCount();
   showSelectionPersistenceNotice();
+  initializeMySelection();
   document.addEventListener('show.bs.modal', trackProductModalFocus);
   document.getElementById('productModal').addEventListener('hidden.bs.modal', () => {
     modalSelection = null;
+    selectionEditKey = null;
     document.getElementById('modal-variants').replaceChildren();
     document.getElementById('modal-add-to-cart').disabled = true;
     restoreProductModalFocus();

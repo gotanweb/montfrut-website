@@ -89,7 +89,7 @@ No existe control de inventario en tiempo real.
 - **CAT-F37:** Al aceptarlo, se recuerda localmente que el usuario ya lo vio.
 - **CAT-F38:** Un aviso permanente y discreto indica que el Catálogo es informativo.
 - **CAT-F39:** My Selection recuerda que los precios son estimados.
-- **CAT-F40:** Antes de abrir WhatsApp se informa que la consulta no constituye una compra ni reserva de productos.
+- **CAT-F40:** Antes de abrir WhatsApp o copiar el mensaje se requiere aceptar expresamente las condiciones comerciales, que aclaran que la consulta no constituye una compra ni reserva. La aceptación se solicita en cada operación y no se persiste.
 
 ## 7. Modelo de productos (CAT-F41 a CAT-F50)
 
@@ -171,8 +171,8 @@ Toda implementación requiere autorización previa.
 | CAT-IMP-002B | Selección inteligente en memoria, cantidades, variantes y disponibilidad | Implementado |
 | CAT-IMP-002B-R1 | Restauración del foco y precisión monetaria | Implementado |
 | CAT-IMP-002C | Documentación funcional, persistencia, recuperación y reconciliación | Implementado; sin interfaz de resumen |
-| CAT-IMP-003 | My Selection, cantidades/eliminación desde UI, subtotal estimado, revisión de estados y precios, formulario y WhatsApp | Pendiente de autorización |
-| CAT-IMP-004 | Internacionalización completa ES/EN | Etapa posterior |
+| CAT-IMP-003A / CAT-IMP-003B / CAT-IMP-003B-R1 | My Selection, cantidades/eliminación, subtotal, revisión, formulario, WhatsApp/copia y consentimiento comercial por operación | Implementado localmente; revisión manual pendiente |
+| CAT-IMP-004 | Internacionalización completa ES/EN y selector visible | Implementado localmente; revisión manual pendiente |
 | Etapas posteriores por autorizar | Avisos informativos y su aceptación, y demás reglas aún no implementadas, incluidos contadores dinámicos y administración de categorías/sabores | Pendientes |
 
 Los estados locales no equivalen a publicación ni aprobación integral en navegador. Las reglas CAT-F01 a CAT-F50 mantienen su alcance aprobado; las funciones reservadas para etapas posteriores no se consideran implementadas por documentarlas aquí.
@@ -187,3 +187,23 @@ Los estados locales no equivalen a publicación ni aprobación integral en naveg
 - Los cambios de precio conservan la referencia original y exponen el precio vigente en centavos. Son informativos cuando la configuración sigue siendo válida; My Selection deberá mostrarlos. Una referencia ausente o inválida no permite afirmar que el precio cambió. Ninguna referencia de localStorage autoriza un precio ni acredita su autenticidad.
 - CAT-IMP-002C prepara funciones y datos para CAT-IMP-003; no muestra estados comerciales ni implementa subtotal, edición, eliminación, formulario o WhatsApp. Solo utiliza la notificación existente para avisar discretamente si la persistencia no es posible.
 - Sin almacenamiento disponible se mantiene la selección en memoria. Los fallos de escritura pueden reintentarse con una nueva adición válida. Si el valor guardado cambió desde la lectura o escritura anterior, se conserva el registro ajeno y se continúa en memoria. No se implementan sincronización ni fusión entre pestañas; la comparación previa al guardado no constituye una transacción atómica entre procesos.
+
+## 12. Consentimiento comercial por operación — CAT-IMP-003B-R1
+
+- Formulario y selección se validan antes de mostrar el consentimiento. Los errores se muestran en My Selection y reciben foco; no se abre el consentimiento cuando la consulta es inválida.
+- Ambas acciones, WhatsApp y Copiar mensaje, exigen una nueva aceptación expresa. No acepto, Escape, cierre o backdrop cancelan sin abrir ni copiar. La aceptación no se guarda en localStorage, sessionStorage ni cookies y no autoriza operaciones futuras.
+- Aceptar revalida los datos y ejecuta una sola vez la acción solicitada. La apertura se realiza directamente desde el clic de aceptación, antes de esperar transiciones. No se afirma que WhatsApp haya abierto ni que el cliente haya enviado el mensaje; la copia confirma únicamente el éxito real de la API del portapapeles.
+- El párrafo final de condiciones se retira del mensaje generado para ambas acciones. Se mantienen saludo de consulta, cliente, opcionales, productos válidos, variantes, cantidades, precios y subtotal. No se borra la selección ni el formulario.
+- Texto español del consentimiento: «Comprendo que esta consulta no constituye una compra ni reserva. Los valores reflejados no incluyen impuestos, envío ni otros cargos. Montfrut confirmará precios, disponibilidad, entrega y condiciones finales.»
+- Texto inglés: «I understand that this inquiry does not constitute a purchase or reservation. The amounts shown do not include taxes, shipping, or other charges. Montfrut will confirm final prices, availability, delivery, and terms.»
+- Botones: «No acepto.» / «Acepto.» y «I Don't Accept.» / «I Accept.». El Offcanvas se oculta antes del modal y se recupera al cerrar, con foco en la acción original o en el campo que requiera corrección.
+- Este consentimiento es independiente del aviso de primera visita de CAT-F36/CAT-F37. Ese aviso no tiene contenido aprobado suficiente para esta entrega; continúa pendiente. No se crea un segundo modal de aceptación ni se persiste la aceptación comercial para satisfacerlo. Los avisos ya existentes se traducen.
+
+## 13. Contrato de idioma — CAT-IMP-004
+
+- Selector ES/EN accesible en el encabezado. Una selección expresa guarda únicamente `es` o `en` en `montfrut.language`, conforme al contrato de Links; no modifica Links ni navega a rutas nuevas.
+- Inicio: preferencia guardada reconocida, idiomas del navegador en orden y, como alternativa, inglés. Se reconocen variantes regionales `es-AR` / `en-US`; si aparecen guardadas se interpretan sin reescribirlas automáticamente. La preferencia inválida se ignora y un acceso fallido al almacenamiento no interrumpe el Catálogo. Un cambio explícito que no pueda guardarse se mantiene en memoria y se informa.
+- Cambiar el idioma no recarga la página ni borra productos, cantidades, variantes, búsqueda, filtros, ordenamiento, formulario, configuración en edición o estado de persistencia. La búsqueda reconoce los textos comerciales ES/EN manteniendo las claves canónicas de categorías/sabores.
+- `catalog/js/i18n.js` centraliza traducciones de interfaz y textos comerciales españoles por ID. El array original de `products.js` y sus textos ingleses permanecen intactos; las vistas traducidas son derivadas, sin duplicar la selección ni alterar precios, imágenes, ingredientes originales, alérgenos o indicadores comerciales.
+- Documento, metadatos textuales, avisos, controles y atributos accesibles siguen el idioma activo. Canonical, URL públicas, tipo Open Graph y recursos conservan su significado; no se crean rutas ni hreflang de páginas inexistentes.
+- Las traducciones reproducen afirmaciones ya existentes. Ingredientes, alérgenos, procedencia y demás afirmaciones comerciales continúan pendientes de verificación por Ani antes del lanzamiento. Esta implementación no certifica esas afirmaciones ni da por completadas las demás reglas de etapas posteriores.

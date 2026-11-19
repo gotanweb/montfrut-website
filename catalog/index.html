@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
@@ -42,7 +42,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="css/styles.css?v=1.4">
+  <link rel="stylesheet" href="css/styles.css?v=1.5">
 
   <!-- Structured Data (JSON-LD) -->
   <script type="application/ld+json">
@@ -87,7 +87,7 @@
        HEADER
        ===================================================================== -->
   <header class="site-header" role="banner">
-    <div class="header-inner">
+    <div class="header-inner catalog-language-header">
 
       <!-- Left: Hamburger (mobile only) -->
       <div class="header-left">
@@ -98,6 +98,14 @@
           <span></span>
         </button>
 
+        <label class="catalog-language-control">
+          <span class="visually-hidden">Catalog language</span>
+          <select id="catalog-language" aria-label="Catalog language">
+            <option value="es" lang="es">ES</option>
+            <option value="en" lang="en" selected>EN</option>
+          </select>
+          <span id="catalog-language-status" class="visually-hidden" role="status" aria-live="polite"></span>
+        </label>
         <nav class="header-nav d-none d-lg-flex" aria-label="Main navigation">
           <a href="../links/index.html" class="nav-link-custom">links</a>
           <a href="../index.html" class="nav-link-custom">website</a>
@@ -121,7 +129,7 @@
             <circle cx="12" cy="7" r="4"></circle>
           </svg>
         </button>
-        <button id="selection-indicator" type="button" class="header-icon-btn" aria-label="Selection: 0 units" style="position:relative;">
+        <button id="selection-indicator" type="button" class="header-icon-btn" aria-label="Selection: 0 units" aria-controls="mySelection" aria-expanded="false" style="position:relative;">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="9" cy="21" r="1"></circle>
@@ -550,11 +558,80 @@
   </div>
 
 
+  <!-- My Selection and CAT-IMP-003B inquiry; no order or payment is recorded. -->
+  <aside class="offcanvas offcanvas-end selection-panel" tabindex="-1" id="mySelection"
+    aria-labelledby="selection-title">
+    <div class="offcanvas-header">
+      <h2 id="selection-title" class="offcanvas-title">My Selection</h2>
+      <button id="selection-close" type="button" class="btn-close" data-bs-dismiss="offcanvas"
+        aria-label="Close My Selection"></button>
+    </div>
+    <div class="offcanvas-body selection-panel__body">
+      <p id="selection-storage-message" class="selection-panel__notice" hidden></p>
+      <div id="selection-empty" class="selection-panel__empty">
+        <p>Your selection is empty.</p>
+        <button id="selection-empty-explore" type="button" class="btn-details" data-bs-dismiss="offcanvas">Continue exploring</button>
+      </div>
+      <div id="selection-items"></div>
+      <form id="selection-inquiry-form" class="selection-inquiry" autocomplete="off" novalidate
+        aria-labelledby="selection-inquiry-title" aria-describedby="selection-inquiry-notice">
+        <h3 id="selection-inquiry-title">Your inquiry</h3>
+        <div class="selection-inquiry__field">
+          <label for="inquiry-name">Full Name <span>(required)</span></label>
+          <input id="inquiry-name" type="text" required maxlength="100" autocomplete="off"
+            aria-describedby="inquiry-name-error">
+          <p id="inquiry-name-error" class="selection-inquiry__error" hidden></p>
+        </div>
+        <div class="selection-inquiry__field">
+          <label for="inquiry-company">Company <span>(optional)</span></label>
+          <input id="inquiry-company" type="text" maxlength="120" autocomplete="off"
+            aria-describedby="inquiry-company-error">
+          <p id="inquiry-company-error" class="selection-inquiry__error" hidden></p>
+        </div>
+        <div class="selection-inquiry__field">
+          <label for="inquiry-event-date">Event Date <span>(optional)</span></label>
+          <input id="inquiry-event-date" type="date" autocomplete="off"
+            aria-describedby="inquiry-event-date-error">
+          <p id="inquiry-event-date-error" class="selection-inquiry__error" hidden></p>
+        </div>
+        <div class="selection-inquiry__field">
+          <label for="inquiry-comments">Additional Comments <span>(optional, up to 1,000 characters)</span></label>
+          <textarea id="inquiry-comments" rows="4" maxlength="1000" autocomplete="off"
+            aria-describedby="inquiry-comments-error"></textarea>
+          <p id="inquiry-comments-error" class="selection-inquiry__error" hidden></p>
+        </div>
+        <p id="selection-inquiry-notice" class="selection-panel__notice">Opening WhatsApp shares these details with WhatsApp. Review and send the message there manually. Both inquiry actions require accepting the commercial terms first.</p>
+        <p id="inquiry-selection-message" class="selection-inquiry__error" tabindex="-1" hidden></p>
+        <p id="inquiry-form-hint" class="selection-inquiry__hint">Enter your full name and select at least one valid product to continue.</p>
+        <div class="selection-inquiry__actions">
+          <button id="inquiry-whatsapp" type="submit" class="selection-panel__action" disabled
+            aria-describedby="selection-inquiry-notice inquiry-form-hint">Send Inquiry via WhatsApp</button>
+          <button id="inquiry-copy" type="button" class="selection-panel__action" disabled
+            aria-describedby="inquiry-form-hint">Copy Inquiry Message</button>
+        </div>
+        <p id="inquiry-action-status" class="selection-inquiry__hint" role="status" aria-live="polite" aria-atomic="true"></p>
+      </form>
+    </div>
+    <div class="selection-panel__summary">
+      <p><span>Valid units</span> <strong id="selection-valid-units">0</strong></p>
+      <p><span>Estimated subtotal</span> <strong id="selection-subtotal">$0.00</strong></p>
+      <p id="selection-subtotal-message" class="selection-panel__notice" hidden></p>
+      <small>Estimated prices exclude taxes, delivery and other charges. Montfrut will confirm final pricing and availability.</small>
+      <button id="selection-clear" type="button" class="btn-details" hidden>Clear selection</button>
+      <div id="selection-clear-confirm" class="selection-panel__confirm" role="group" aria-labelledby="selection-clear-question" hidden>
+        <p id="selection-clear-question">Clear every item from your selection?</p>
+        <button id="selection-confirm-clear" type="button" class="btn-details">Yes, clear selection</button>
+        <button id="selection-cancel-clear" type="button" class="btn-details">Keep selection</button>
+      </div>
+    </div>
+    <p id="selection-live" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
+  </aside>
+
   <!-- =====================================================================
        PRODUCT MODAL
        ===================================================================== -->
   <div class="modal fade modal-product" id="productModal" tabindex="-1" aria-labelledby="productModalLabel"
-    aria-modal="true" role="dialog">
+    aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
 
@@ -606,6 +683,7 @@
               <p class="modal-section-label">Ingredients</p>
               <p class="modal-text" id="modal-ingredients"></p>
 
+              <p id="selection-edit-note" class="modal-text" hidden></p>
               <div id="modal-variants" hidden></div>
               <p id="modal-selection-message" class="selection-validation" role="status" aria-live="polite" hidden></p>
             </div>
@@ -622,7 +700,7 @@
               <circle cx="20" cy="21" r="1"></circle>
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
             </svg>
-            Add to Selection
+            <span id="modal-selection-action-label">Add to Selection</span>
           </button>
           <button type="button" class="btn-details" data-bs-dismiss="modal">Close</button>
         </div>
@@ -686,12 +764,33 @@
   </div>
 
 
+  <!-- Consent is requested for every inquiry action; it is never persisted. -->
+  <div class="modal fade catalog-consent" id="inquiryConsentModal" tabindex="-1"
+    aria-labelledby="inquiry-consent-title" aria-describedby="inquiry-consent-text" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="inquiry-consent-title">Commercial terms</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close consent dialog"></button>
+        </div>
+        <div class="modal-body">
+          <p id="inquiry-consent-text">I understand that this inquiry does not constitute a purchase or reservation. The amounts shown do not include taxes, shipping, or other charges. Montfrut will confirm final prices, availability, delivery, and terms.</p>
+        </div>
+        <div class="modal-footer">
+          <button id="inquiry-consent-reject" type="button" class="catalog-consent__button catalog-consent__button--secondary" data-bs-dismiss="modal">I Don't Accept.</button>
+          <button id="inquiry-consent-accept" type="button" class="catalog-consent__button catalog-consent__button--primary">I Accept.</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap 5 JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Montfrut Scripts -->
   <script src="js/products.js"></script>
-  <script src="js/scripts.js?v=1.2"></script>
+  <script src="js/i18n.js?v=1.0"></script>
+  <script src="js/scripts.js?v=1.3"></script>
 
   <script>
     // Robustness check: if after 2 seconds the grid is still empty, try to re-render
