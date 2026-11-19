@@ -300,10 +300,10 @@ function applyCatalogStaticText() {
     const data = JSON.parse(JSON.stringify(catalogStructuredData.data));
     data.name = catalogLanguage === 'es' ? 'Catálogo de Chocolates Montfrut' : 'Montfrut Chocolate Catalog';
     data.description = catalogLanguage === 'es' ? 'Explora nuestra colección exclusiva de chocolates artesanales, bombones, trufas y cajas de regalo premium.' : 'Explore our exclusive collection of artisan chocolates, bonbons, truffles and premium gift boxes.';
-    data.mainEntity.itemListElement[0].name = catalogLanguage === 'es' ? 'Bombones de praliné de avellana' : catalogStructuredData.data.mainEntity.itemListElement[0].name;
-    data.mainEntity.itemListElement[0].description = localizedProduct(products[0]).shortDescription;
-    data.mainEntity.itemListElement[1].name = catalogLanguage === 'es' ? 'Colección Signature' : catalogStructuredData.data.mainEntity.itemListElement[1].name;
-    data.mainEntity.itemListElement[1].description = localizedProduct(products[1]).shortDescription;
+    data.mainEntity.itemListElement = products.map((product, index) => {
+      const view = localizedProduct(product);
+      return { '@type': 'ListItem', position: index + 1, name: view.name, description: view.shortDescription };
+    });
     catalogStructuredData.node.textContent = JSON.stringify(data, null, 2);
   }
 }

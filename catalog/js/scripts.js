@@ -1128,30 +1128,46 @@ function getFilteredProducts() {
   return filtered;
 }
 
-function updateFilters() {
-  // Checkboxes — categories
-  document.querySelectorAll('.filter-category').forEach(cb => {
-    cb.addEventListener('change', () => {
-      if (cb.checked) {
-        if (!activeCategories.includes(cb.value)) activeCategories.push(cb.value);
-      } else {
-        activeCategories = activeCategories.filter(c => c !== cb.value);
-      }
-      renderProductGrid();
+// Counts represent the entire published catalog, independently of active filters
+// and availability. Both sets of controls are projections of the same state.
+function syncFilterControls() {
+  for (const [field, selector, selected] of [
+    ['category', '.filter-category, .filter-category-oc', activeCategories],
+    ['flavor', '.filter-flavor, .filter-flavor-oc', activeFlavors]
+  ]) {
+    const counts = new Map();
+    for (const product of products) counts.set(product[field], (counts.get(product[field]) || 0) + 1);
+    document.querySelectorAll(selector).forEach(cb => {
+      cb.checked = selected.includes(cb.value);
+      const count = cb.closest('.filter-check')?.querySelector('.filter-check__count');
+      if (count) count.textContent = counts.get(cb.value) || 0;
     });
-  });
+  }
+}
 
-  // Checkboxes — flavors
-  document.querySelectorAll('.filter-flavor').forEach(cb => {
+function updateFilters() {
+  const bind = (selector, update) => document.querySelectorAll(selector).forEach(cb => {
+    if (cb._catalogFilterBound) return;
+    cb._catalogFilterBound = true;
     cb.addEventListener('change', () => {
-      if (cb.checked) {
-        if (!activeFlavors.includes(cb.value)) activeFlavors.push(cb.value);
-      } else {
-        activeFlavors = activeFlavors.filter(f => f !== cb.value);
-      }
+      update(cb.value, cb.checked);
       renderProductGrid();
     });
   });
+  bind('.filter-category, .filter-category-oc', (value, checked) => {
+    activeCategories = activeCategories.filter(category => category !== value);
+    if (checked) activeCategories.push(value);
+  });
+  bind('.filter-flavor, .filter-flavor-oc', (value, checked) => {
+    activeFlavors = activeFlavors.filter(flavor => flavor !== value);
+    if (checked) activeFlavors.push(value);
+  });
+}
+
+function clearFilters() {
+  activeCategories = [];
+  activeFlavors = [];
+  renderProductGrid();
 }
 
 
@@ -1226,26 +1242,27 @@ function renderBestSellerCard(product) {
 
 function renderProductGrid() {
   console.log('Montfrut Catalog: Rendering product grid...');
+  syncFilterControls();
   const filtered = getFilteredProducts();
-  const bestSeller = products.find(p => p.isBestSeller);
   const gridWrap = document.getElementById('catalog-grid-wrap');
   const noResults = document.getElementById('no-results');
   const bestSellerSlot = document.getElementById('bestseller-slot');
+  const bestSeller = bestSellerSlot ? filtered.find(p => p.isBestSeller) : null;
 
   // Remove old dynamic cards
   gridWrap.querySelectorAll('.product-card').forEach(el => el.remove());
 
   // Best seller card
   if (bestSellerSlot) {
-    const shouldShow = filtered.some(p => p.isBestSeller) && bestSeller;
+    const shouldShow = Boolean(bestSeller);
     bestSellerSlot.innerHTML = shouldShow ? renderBestSellerCard(bestSeller) : '';
     bestSellerSlot.style.display = shouldShow ? '' : 'none';
   }
 
-  // Regular products (exclude best seller)
-  const regularProducts = filtered.filter(p => !p.isBestSeller);
+  // Exclude only the featured product; additional best sellers remain visible.
+  const regularProducts = filtered.filter(p => !bestSeller || p.id !== bestSeller.id);
 
-  if (regularProducts.length === 0 && !filtered.some(p => p.isBestSeller)) {
+  if (filtered.length === 0) {
     noResults.classList.remove('d-none');
   } else {
     noResults.classList.add('d-none');
@@ -1641,40 +1658,6 @@ function initSearchAndSort() {
 
 
 /* --------------------------------------------------------------------------
-   11. MOBILE FILTERS SYNC (offcanvas mirrors main sidebar)
-   -------------------------------------------------------------------------- */
-
-function syncOffcanvasFilters() {
-  document.querySelectorAll('.filter-category-oc').forEach(cb => {
-    cb.addEventListener('change', () => {
-      // Mirror to sidebar
-      const sibling = document.querySelector(`.filter-category[value="${cb.value}"]`);
-      if (sibling) sibling.checked = cb.checked;
-      if (cb.checked) {
-        if (!activeCategories.includes(cb.value)) activeCategories.push(cb.value);
-      } else {
-        activeCategories = activeCategories.filter(c => c !== cb.value);
-      }
-      renderProductGrid();
-    });
-  });
-
-  document.querySelectorAll('.filter-flavor-oc').forEach(cb => {
-    cb.addEventListener('change', () => {
-      const sibling = document.querySelector(`.filter-flavor[value="${cb.value}"]`);
-      if (sibling) sibling.checked = cb.checked;
-      if (cb.checked) {
-        if (!activeFlavors.includes(cb.value)) activeFlavors.push(cb.value);
-      } else {
-        activeFlavors = activeFlavors.filter(f => f !== cb.value);
-      }
-      renderProductGrid();
-    });
-  });
-}
-
-
-/* --------------------------------------------------------------------------
    12. INIT
    -------------------------------------------------------------------------- */
 
@@ -1711,7 +1694,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Events
   updateFilters();
   initSearchAndSort();
-  syncOffcanvasFilters();
 
   // Special collection carousel buttons
   const btnPrev = document.getElementById('special-prev');
@@ -1737,13 +1719,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }, { passive: true });
 
   // Smooth scroll for internal anchors
-  document.querySelectorAll('a[href^="#"]').forEach(link => {
+  document.querySelectorAll('a[href^="#"], a[href=""]').forEach(link => {
     link.addEventListener('click', e => {
-      const target = document.querySelector(link.getAttribute('href'));
-      if (target) {
-        e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
+      e.preventDefault();
+      const fragment = link.getAttribute('href');
+      if (!fragment || fragment === '#') return;
+      let id;
+      try { id = decodeURIComponent(fragment.slice(1)); } catch { return; }
+      const target = document.getElementById(id);
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
     });
   });
 
