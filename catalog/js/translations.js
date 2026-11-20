@@ -23,17 +23,7 @@ const CATALOG_ES = Object.freeze({
   "Product filters": "Filtros de productos",
   "Filters": "Filtros",
   "Categories": "Categorías",
-  "Chocolate Bonbons": "Bombones de chocolate",
-  "Truffles": "Trufas",
-  "Chocolate Bars": "Tabletas de chocolate",
-  "Gift Boxes": "Cajas de regalo",
-  "Seasonal Collection": "Colección de temporada",
   "Flavors": "Sabores",
-  "Dark Chocolate": "Chocolate negro",
-  "Milk Chocolate": "Chocolate con leche",
-  "White Chocolate": "Chocolate blanco",
-  "Hazelnut": "Avellana",
-  "Caramel": "Caramelo",
   "Allergies": "Alérgenos",
   "Product catalog": "Catálogo de productos",
   "Search chocolates...": "Buscar chocolates...",
@@ -46,6 +36,10 @@ const CATALOG_ES = Object.freeze({
   "Special Collection": "Colección especial",
   "Previous special items": "Productos especiales anteriores",
   "Next special items": "Productos especiales siguientes",
+  "Pause special collection": "Pausar la colección especial",
+  "Resume special collection": "Reanudar la colección especial",
+  "Pause": "Pausar",
+  "Resume": "Reanudar",
   "Special collection items": "Productos de la colección especial",
   "No products match your current filters.": "No hay productos que coincidan con los filtros actuales.",
   "Finest Ingredients": "Los mejores ingredientes",
@@ -243,6 +237,26 @@ function localizedCatalogCopy(copy) {
   return Object.freeze(result);
 }
 
+function getCatalogTaxonomyEntries(field) {
+  const entries = catalogTaxonomy && catalogTaxonomy[field === 'category' ? 'categories' : 'flavors'];
+  if (!Array.isArray(entries)) return [];
+  const seen = new Set();
+  return entries.filter(entry => {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry) ||
+        typeof entry.value !== 'string' || !entry.value.trim() || seen.has(entry.value)) return false;
+    seen.add(entry.value);
+    return true;
+  });
+}
+
+function catalogTaxonomyLabel(field, value, language = catalogLanguage) {
+  const entry = getCatalogTaxonomyEntries(field).find(entry => entry.value === value);
+  const label = entry && entry.label;
+  if (typeof label?.[language] === 'string' && label[language].trim()) return label[language];
+  if (typeof label?.en === 'string' && label.en.trim()) return label.en;
+  return value; // Preserve an unknown identifier; validation reports the data problem.
+}
+
 function localizedProduct(product, language = catalogLanguage) {
   const english = product.translations.en;
   const translated = product.translations[language] || {};
@@ -252,7 +266,8 @@ function localizedProduct(product, language = catalogLanguage) {
     longDescription: translated.longDescription ?? english.longDescription,
     ingredients: translated.ingredients ?? english.ingredients,
     flavorNotes: translated.flavorNotes ?? english.flavorNotes,
-    category: catalogText(product.category, {}, language), flavor: catalogText(product.flavor, {}, language),
+    category: catalogTaxonomyLabel('category', product.category, language),
+    flavor: catalogTaxonomyLabel('flavor', product.flavor, language),
     allergyTags: product.allergyTags.map(tag => catalogText(tag, {}, language)) };
 }
 
@@ -268,7 +283,8 @@ function captureCatalogStaticText() {
       if (node.nodeValue.trim()) catalogStaticNodes.push({ node, source: node.nodeValue });
       return;
     }
-    if (['SCRIPT', 'STYLE', 'TEXTAREA'].includes(node.tagName)) return;
+    if (['SCRIPT', 'STYLE', 'TEXTAREA'].includes(node.tagName) ||
+        (node.nodeType === 1 && node.hasAttribute('data-catalog-filter-option'))) return;
     if (node.nodeType === 1) {
       const attributes = ['aria-label', 'title', 'alt', 'placeholder'];
       if (node.tagName === 'META' && (['description', 'keywords'].includes(node.getAttribute('name')) ||

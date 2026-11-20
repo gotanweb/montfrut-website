@@ -1128,39 +1128,124 @@ function getFilteredProducts() {
   return filtered;
 }
 
-// Counts represent the entire published catalog, independently of active filters
-// and availability. Both sets of controls are projections of the same state.
+function validateCatalogTaxonomy(taxonomy = catalogTaxonomy, catalogProducts = products) {
+  const errors = [];
+  if (!taxonomy || typeof taxonomy !== 'object' || Array.isArray(taxonomy)) errors.push('Taxonomy must be an object.');
+  for (const [key, field] of [['categories', 'category'], ['flavors', 'flavor']]) {
+    const entries = taxonomy && taxonomy[key];
+    if (!Array.isArray(entries)) { errors.push(`${key} must be an array.`); continue; }
+    const values = new Set(), normalized = new Map();
+    Array.from(entries).forEach((entry, index) => {
+      if (!entry || typeof entry !== 'object' || Array.isArray(entry) ||
+          typeof entry.value !== 'string' || !entry.value.trim()) {
+        errors.push(`${key}[${index}] requires a nonempty string value.`);
+        return;
+      }
+      const value = entry.value;
+      if (value !== value.trim()) errors.push(`${key}: surrounding whitespace in value ${JSON.stringify(value)}.`);
+      if (values.has(value)) errors.push(`${key}: duplicate value ${JSON.stringify(value)}.`);
+      const canonical = value.trim().toLowerCase();
+      if (normalized.has(canonical) && normalized.get(canonical) !== value) {
+        errors.push(`${key}: identifiers differ only by case or whitespace: ${JSON.stringify(value)}.`);
+      }
+      values.add(value);
+      normalized.set(canonical, value);
+      for (const language of ['en', 'es']) {
+        if (!entry.label || typeof entry.label !== 'object' || Array.isArray(entry.label) || typeof entry.label[language] !== 'string' ||
+            !entry.label[language].trim()) errors.push(`${key}: ${JSON.stringify(value)} requires label.${language}.`);
+      }
+    });
+    if (Array.isArray(catalogProducts)) catalogProducts.forEach(product => {
+      if (!product || !values.has(product[field])) {
+        const value = product && product[field];
+        const similar = typeof value === 'string' && normalized.get(value.trim().toLowerCase());
+        errors.push(`Product ${product && product.id}: unknown ${field} ${JSON.stringify(value)}${similar ? `; expected ${JSON.stringify(similar)}` : ''}.`);
+      }
+    });
+  }
+  if (!Array.isArray(catalogProducts)) errors.push('Products must be an array.');
+  return { valid: errors.length === 0, errors };
+}
+
+let catalogTaxonomyDiagnostic = '';
+
+// Reconcile options in place: language/count changes retain the actual input and its focus.
+// Counts include the entire catalog, independently of active filters and availability.
 function syncFilterControls() {
-  for (const [field, selector, selected] of [
-    ['category', '.filter-category, .filter-category-oc', activeCategories],
-    ['flavor', '.filter-flavor, .filter-flavor-oc', activeFlavors]
-  ]) {
+  const validation = validateCatalogTaxonomy();
+  const diagnostic = validation.errors.join('\n');
+  if (diagnostic && diagnostic !== catalogTaxonomyDiagnostic) console.warn('Montfrut Catalog taxonomy:\n' + diagnostic);
+  catalogTaxonomyDiagnostic = diagnostic;
+  const active = document.activeElement;
+  const focusedGroup = active && active.closest('.filter-group[data-filter-field]');
+  for (const field of ['category', 'flavor']) {
     const counts = new Map();
     for (const product of products) counts.set(product[field], (counts.get(product[field]) || 0) + 1);
-    document.querySelectorAll(selector).forEach(cb => {
-      cb.checked = selected.includes(cb.value);
-      const count = cb.closest('.filter-check')?.querySelector('.filter-check__count');
-      if (count) count.textContent = counts.get(cb.value) || 0;
+    const entries = getCatalogTaxonomyEntries(field).filter(entry => counts.has(entry.value));
+    const values = new Set(entries.map(entry => entry.value));
+    // Retired definitions/products must not leave an invisible active filter behind.
+    if (field === 'category') activeCategories = activeCategories.filter(value => values.has(value));
+    else activeFlavors = activeFlavors.filter(value => values.has(value));
+    const selected = field === 'category' ? activeCategories : activeFlavors;
+    document.querySelectorAll(`.filter-group[data-filter-field="${field}"]`).forEach(group => {
+      const existing = new Map(Array.from(group.querySelectorAll('.filter-check')).map(label =>
+        [label.querySelector('input').value, label]));
+      entries.forEach((entry, index) => {
+        let label = existing.get(entry.value);
+        if (!label) {
+          label = document.createElement('label');
+          label.className = 'filter-check';
+          label.setAttribute('data-catalog-filter-option', '');
+          const input = document.createElement('input');
+          input.setAttribute('type', 'checkbox');
+          input.className = `filter-${field}${group.closest('#filtersOffcanvas') ? '-oc' : ''}`;
+          input.value = entry.value;
+          label.appendChild(input);
+          for (const className of ['filter-check__label', 'filter-check__count']) {
+            const span = document.createElement('span');
+            span.className = className;
+            label.appendChild(span);
+          }
+        }
+        label.querySelector('input').checked = selected.includes(entry.value);
+        const text = catalogTaxonomyLabel(field, entry.value);
+        const textNode = label.querySelector('.filter-check__label');
+        if (textNode.textContent !== text) textNode.textContent = text;
+        label.querySelector('.filter-check__count').textContent = counts.get(entry.value);
+        const position = group.querySelectorAll('.filter-check')[index];
+        if (position !== label) group.insertBefore(label, position || null);
+      });
+      for (const [value, label] of existing) if (!values.has(value)) label.remove();
     });
+  }
+  if (focusedGroup && (!active.isConnected || document.activeElement !== active)) {
+    const fallback = active.isConnected ? active :
+      focusedGroup.querySelector('input') || focusedGroup.querySelector('.filter-group__heading');
+    if (fallback) {
+      if (fallback.tagName !== 'INPUT') fallback.setAttribute('tabindex', '-1');
+      fallback.focus({ preventScroll: true });
+    }
   }
 }
 
 function updateFilters() {
-  const bind = (selector, update) => document.querySelectorAll(selector).forEach(cb => {
-    if (cb._catalogFilterBound) return;
-    cb._catalogFilterBound = true;
-    cb.addEventListener('change', () => {
-      update(cb.value, cb.checked);
+  document.querySelectorAll('.filter-group[data-filter-field]').forEach(group => {
+    if (group._catalogFilterBound) return;
+    group._catalogFilterBound = true;
+    group.addEventListener('change', event => {
+      const cb = event.target;
+      if (!cb.matches('input[type="checkbox"]') || !group.contains(cb)) return;
+      const field = group.getAttribute('data-filter-field');
+      if (!getCatalogTaxonomyEntries(field).some(entry => entry.value === cb.value)) return;
+      if (field === 'category') {
+        activeCategories = activeCategories.filter(value => value !== cb.value);
+        if (cb.checked) activeCategories.push(cb.value);
+      } else {
+        activeFlavors = activeFlavors.filter(value => value !== cb.value);
+        if (cb.checked) activeFlavors.push(cb.value);
+      }
       renderProductGrid();
     });
-  });
-  bind('.filter-category, .filter-category-oc', (value, checked) => {
-    activeCategories = activeCategories.filter(category => category !== value);
-    if (checked) activeCategories.push(value);
-  });
-  bind('.filter-flavor, .filter-flavor-oc', (value, checked) => {
-    activeFlavors = activeFlavors.filter(flavor => flavor !== value);
-    if (checked) activeFlavors.push(value);
   });
 }
 
@@ -1283,6 +1368,11 @@ function renderProductGrid() {
    -------------------------------------------------------------------------- */
 
 let carouselIndex = 0;
+let carouselInterval = null;
+let carouselPaused = false;
+let carouselHovered = false;
+let carouselSuspended = false;
+const carouselMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 function getVisibleSpecialItems() {
   if (window.matchMedia('(min-width: 992px)').matches) return 3;
@@ -1295,11 +1385,13 @@ function renderSpecialCollection() {
   const specialProducts = products.filter(p => p.isSpecialCollection);
   const track = document.getElementById('special-track');
   if (!track) return;
+  const active = document.activeElement;
+  const focusedProductId = track.contains(active) ? active.getAttribute('data-id') : null;
 
   track.innerHTML = specialProducts.map(product => {
     const p = localizedProduct(product);
     return `
-    <div class="special-item">
+    <div class="special-item" role="listitem">
       <div class="special-item__img-wrap">
         <img src="${p.image}" alt="${p.name}" loading="lazy">
       </div>
@@ -1316,9 +1408,13 @@ function renderSpecialCollection() {
   `;
   }).join('');
 
-  carouselIndex = 0;
-  if (track) track.style.transform = 'translateX(0)';
-  updateCarouselButtons(specialProducts.length);
+  carouselIndex = Math.min(carouselIndex, Math.max(0, specialProducts.length - getVisibleSpecialItems()));
+  moveCarousel(0);
+  if (focusedProductId !== null) {
+    const replacement = Array.from(track.querySelectorAll('.btn-details')).find(button =>
+      button.getAttribute('data-id') === focusedProductId);
+    (replacement || document.getElementById('special-heading')).focus({ preventScroll: true });
+  }
 }
 
 function updateCarouselButtons(total) {
@@ -1329,6 +1425,13 @@ function updateCarouselButtons(total) {
   const visibleItems = getVisibleSpecialItems();
   btnPrev.disabled = carouselIndex === 0;
   btnNext.disabled = carouselIndex >= Math.max(0, total - visibleItems);
+  startCarouselAutoPlay();
+  const active = document.activeElement;
+  if ((active === btnPrev && btnPrev.disabled) || (active === btnNext && btnNext.disabled)) {
+    const fallback = [btnPrev, btnNext, document.getElementById('special-playback'),
+      document.getElementById('special-heading')].find(canReceiveFocus);
+    if (fallback) fallback.focus({ preventScroll: true });
+  }
 }
 
 function moveCarousel(direction) {
@@ -1355,22 +1458,92 @@ function moveCarousel(direction) {
   updateCarouselButtons(specialProducts.length);
 }
 
-// Auto-play carousel
-let carouselInterval;
+// One timer, with an explicit pause that survives focus, navigation, resize and language changes.
 function startCarouselAutoPlay() {
   stopCarouselAutoPlay();
-  const specialProducts = products.filter(p => p.isSpecialCollection);
-  const visibleItems = getVisibleSpecialItems();
-  
-  if (specialProducts.length <= visibleItems) return; // Don't play if everything is visible
-
-  carouselInterval = setInterval(() => {
-    moveCarousel(1);
-  }, 4000); // 4 seconds
+  const track = document.getElementById('special-track');
+  const viewport = track && track.parentElement;
+  const canScroll = products.filter(p => p.isSpecialCollection).length > getVisibleSpecialItems() &&
+    (!viewport || !viewport.clientWidth || track.scrollWidth > viewport.clientWidth + 1);
+  const button = document.getElementById('special-playback');
+  if (button) {
+    button.hidden = !canScroll || carouselMotionQuery.matches;
+    button.textContent = catalogText(carouselPaused ? 'Resume' : 'Pause');
+    button.setAttribute('aria-label', catalogText(carouselPaused ? 'Resume special collection' : 'Pause special collection'));
+    if (button.hidden && document.activeElement === button) {
+      document.getElementById('special-heading').focus({ preventScroll: true });
+    }
+  }
+  if (!canScroll || carouselMotionQuery.matches || carouselPaused || carouselHovered ||
+      carouselSuspended || document.hidden) return;
+  carouselInterval = setInterval(() => moveCarousel(1), 4000);
 }
 
 function stopCarouselAutoPlay() {
-  if (carouselInterval) clearInterval(carouselInterval);
+  if (carouselInterval !== null) clearInterval(carouselInterval);
+  carouselInterval = null;
+}
+
+function pauseCarousel() {
+  carouselPaused = true;
+  startCarouselAutoPlay();
+}
+
+function initializeSpecialCarousel() {
+  const section = document.getElementById('special-collection');
+  if (!section || section._catalogCarouselBound) return;
+  section._catalogCarouselBound = true;
+  carouselPaused = carouselMotionQuery.matches;
+  section.addEventListener('focusin', () => {
+    pauseCarousel();
+    // Bring a keyboard-focused card into view without changing focus or native tab order.
+    const track = document.getElementById('special-track');
+    const items = Array.from(track.children);
+    const index = items.findIndex(item => item.contains(document.activeElement));
+    if (index >= 0) {
+      const visible = getVisibleSpecialItems();
+      if (index < carouselIndex) carouselIndex = index;
+      else if (index >= carouselIndex + visible) carouselIndex = index - visible + 1;
+      moveCarousel(0);
+      track.parentElement.scrollLeft = 0;
+    }
+  });
+  section.addEventListener('mouseenter', () => {
+    carouselHovered = true;
+    startCarouselAutoPlay();
+  });
+  section.addEventListener('mouseleave', () => {
+    carouselHovered = false;
+    startCarouselAutoPlay();
+  });
+  const playback = document.getElementById('special-playback');
+  let pointerPauseAction = null;
+  playback.addEventListener('pointerdown', () => {
+    // Focus pauses before click; retain the action the pointer user actually pressed.
+    pointerPauseAction = !carouselPaused;
+  });
+  playback.addEventListener('pointercancel', () => { pointerPauseAction = null; });
+  playback.addEventListener('click', event => {
+    carouselPaused = event.detail > 0 && pointerPauseAction !== null ? pointerPauseAction : !carouselPaused;
+    pointerPauseAction = null;
+    startCarouselAutoPlay();
+  });
+  const motionChanged = () => {
+    // Returning to normal motion also requires an explicit resume.
+    pauseCarousel();
+  };
+  if (carouselMotionQuery.addEventListener) carouselMotionQuery.addEventListener('change', motionChanged);
+  else if (carouselMotionQuery.addListener) carouselMotionQuery.addListener(motionChanged);
+  document.addEventListener('visibilitychange', startCarouselAutoPlay);
+  window.addEventListener('pagehide', () => {
+    carouselSuspended = true;
+    pauseCarousel();
+  });
+  window.addEventListener('pageshow', () => {
+    carouselSuspended = false;
+    startCarouselAutoPlay();
+  });
+  startCarouselAutoPlay();
 }
 
 
@@ -1699,22 +1872,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnPrev = document.getElementById('special-prev');
   const btnNext = document.getElementById('special-next');
   if (btnPrev) btnPrev.addEventListener('click', () => {
+    pauseCarousel();
     moveCarousel(-1);
-    startCarouselAutoPlay(); // Reset timer
   });
   if (btnNext) btnNext.addEventListener('click', () => {
+    pauseCarousel();
     moveCarousel(1);
-    startCarouselAutoPlay(); // Reset timer
   });
   
-  startCarouselAutoPlay(); // Initial start
+  initializeSpecialCarousel();
 
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       renderSpecialCollection();
-      startCarouselAutoPlay();
     }, 150);
   }, { passive: true });
 

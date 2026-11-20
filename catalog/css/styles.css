@@ -652,7 +652,7 @@ a {
   gap: 0.5rem;
   width: 100%;
   padding: 0.75rem;
-  background: var(--sea-glass);
+  background: var(--color-btn-primary);
   border: none;
   border-radius: 8px;
   color: #fff;
@@ -664,15 +664,23 @@ a {
   box-shadow: 0 2px 8px rgba(104, 161, 155, 0.2);
 }
 
-.btn-allergies:hover {
-  background: #568d87;
+.btn-allergies:hover:enabled {
+  background: var(--color-btn-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(104, 161, 155, 0.3);
 }
 
+.btn-allergies:active:enabled {
+  background: var(--blood-crimson);
+}
+
+.btn-allergies:disabled {
+  cursor: not-allowed;
+}
+
 .modal-allergy-link {
   font-size: 0.75rem;
-  color: var(--sea-glass);
+  color: var(--midnight-blue);
   text-decoration: underline;
   margin-left: 0.5rem;
   display: inline-flex;
@@ -680,8 +688,19 @@ a {
   font-weight: 600;
 }
 
-.modal-allergy-link:hover {
-  color: #568d87;
+.modal-allergy-link:hover,
+.modal-allergy-link:active {
+  color: var(--blood-crimson);
+}
+
+.btn-allergies:focus-visible {
+  outline: 3px solid var(--midnight-blue);
+  outline-offset: 3px;
+}
+
+.modal-allergy-link:focus-visible {
+  outline: 3px solid var(--midnight-blue);
+  outline-offset: 2px;
 }
 
 /* --------------------------------------------------------------------------
@@ -783,6 +802,11 @@ a {
   outline: none;
 }
 
+.sort-select:focus-visible {
+  outline: 3px solid var(--midnight-blue);
+  outline-offset: -3px; /* Keep the ring inside clipping containers. */
+}
+
 .filters-toggle-btn {
   display: none;
   align-items: center;
@@ -830,6 +854,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin-bottom: 1.25rem;
 }
 
@@ -870,6 +896,37 @@ a {
 .carousel-arrow-btn:disabled {
   opacity: 0.35;
   cursor: default;
+}
+
+.carousel-playback-btn {
+  width: auto;
+  min-width: 5.5rem;
+  padding-inline: 0.6rem;
+  border-radius: 8px;
+  font: 600 0.75rem var(--font-ui);
+}
+
+.carousel-playback-btn[hidden] {
+  display: none;
+}
+
+.special-section .carousel-arrow-btn:focus-visible,
+.special-section .btn-details:focus-visible,
+#special-heading:focus-visible {
+  outline: 3px solid var(--midnight-blue);
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 5px var(--almond-cream);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .special-section *, #special-track {
+    transition: none !important;
+    animation: none !important;
+  }
+  .special-section .special-item:hover,
+  .special-section .btn-details:hover {
+    transform: none;
+  }
 }
 
 .special-carousel-viewport {

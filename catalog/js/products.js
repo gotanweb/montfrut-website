@@ -56,6 +56,25 @@
  * }
  */
 // CAT-REF-001: commercial texts live here in translations.en / translations.es.
+// CAT-IMP-005C: stable filter values and bilingual labels, in display order.
+// Add a definition here only when a product needs a new category or flavor.
+const catalogTaxonomy = {
+  categories: [
+    { value: 'Chocolate Bonbons', label: { en: 'Chocolate Bonbons', es: 'Bombones de chocolate' } },
+    { value: 'Truffles', label: { en: 'Truffles', es: 'Trufas' } },
+    { value: 'Chocolate Bars', label: { en: 'Chocolate Bars', es: 'Tabletas de chocolate' } },
+    { value: 'Gift Boxes', label: { en: 'Gift Boxes', es: 'Cajas de regalo' } },
+    { value: 'Seasonal Collection', label: { en: 'Seasonal Collection', es: 'Colección de temporada' } }
+  ],
+  flavors: [
+    { value: 'Dark Chocolate', label: { en: 'Dark Chocolate', es: 'Chocolate negro' } },
+    { value: 'Milk Chocolate', label: { en: 'Milk Chocolate', es: 'Chocolate con leche' } },
+    { value: 'White Chocolate', label: { en: 'White Chocolate', es: 'Chocolate blanco' } },
+    { value: 'Hazelnut', label: { en: 'Hazelnut', es: 'Avellana' } },
+    { value: 'Caramel', label: { en: 'Caramel', es: 'Caramelo' } }
+  ]
+};
+
 const products = [
   {
     id: 1,
