@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="{{CATALOG_LANGUAGE}}">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description"
+    content="Montfrut - Premium artisan chocolates handcrafted with the finest ingredients. Discover our full catalog of bonbons, truffles, bars, and gift boxes.">
+  <meta name="keywords"
+    content="Montfrut, artisan chocolate, handcrafted bonbons, gourmet truffles, chocolate gift boxes, premium chocolate catalog">
+  <meta name="author" content="Montfrut">
+  <title>Montfrut - Artisan Chocolate Catalog</title>
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{CATALOG_URL}}">
+  <meta property="og:title" content="Montfrut - Artisan Chocolate Catalog">
+  <meta property="og:description"
+    content="Discover our collection of premium artisan chocolates. Handcrafted with passion and the finest ingredients.">
+  <meta property="og:image" content="https://montfrut.com/links/assets/img/montfrut-og.jpg">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="{{CATALOG_URL}}">
+  <meta property="twitter:title" content="Montfrut - Artisan Chocolate Catalog">
+  <meta property="twitter:description"
+    content="Discover our collection of premium artisan chocolates. Handcrafted with passion and the finest ingredients.">
+  <meta property="twitter:image" content="https://montfrut.com/links/assets/img/montfrut-og.jpg">
+
+  <meta property="og:locale" content="{{CATALOG_LOCALE}}">
+  <meta property="og:locale:alternate" content="{{OTHER_LOCALE}}">
+  <meta property="og:image:alt" content="Montfrut - Artisan Chocolates">
+  <meta property="twitter:image:alt" content="Montfrut - Artisan Chocolates">
+  <meta name="referrer" content="strict-origin">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/links/assets/img/favicon.png">
+  <link rel="canonical" href="{{CATALOG_URL}}">
+
+  <link rel="alternate" hreflang="es" href="https://montfrut.com/catalog/">
+  <link rel="alternate" hreflang="en" href="https://montfrut.com/catalog/en/">
+  <link rel="alternate" hreflang="x-default" href="https://montfrut.com/catalog/">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="{{CATALOG_STYLES_PATH}}?v=2.5">
+
+  <!-- Structured Data (JSON-LD) -->
+  <!-- CATALOG_STRUCTURED_DATA -->
+</head>
+
+<body>
+
+  <!-- =====================================================================
+       HEADER
+       ===================================================================== -->
+  <header class="site-header" role="banner">
+    <div class="header-inner catalog-language-header">
+
+      <!-- Left: Hamburger (mobile only) -->
+      <div class="header-left">
+        <button class="hamburger-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtersOffcanvas"
+          aria-controls="filtersOffcanvas" aria-label="Open filters menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <label class="catalog-language-control">
+          <span class="visually-hidden">Catalog language</span>
+          <select id="catalog-language" aria-label="Catalog language">
+            <option value="es" lang="es">ES</option>
+            <option value="en" lang="en" selected>EN</option>
+          </select>
+          <span id="catalog-language-status" class="visually-hidden" role="status" aria-live="polite"></span>
+        </label>
+        <nav class="header-nav d-none d-lg-flex" aria-label="Main navigation">
+          <a href="{{LINKS_PATH}}" data-catalog-links class="nav-link-custom">links</a>
+          <a href="/" class="nav-link-custom">website</a>
+        </nav>
+      </div>
+
+      <!-- Center: Logo -->
+      <div class="header-center">
+        <a href="#" aria-label="Montfrut — Home">
+          <img class="header-logo" src="/links/assets/img/montfrut-logo.png" alt="Montfrut - Artisan Chocolates"
+            width="210" height="86">
+        </a>
+      </div>
+
+      <!-- Right: Icons -->
+      <div class="header-right">
+        <button id="selection-indicator" type="button" class="header-icon-btn" aria-label="Selection: 0 units" aria-controls="mySelection" aria-expanded="false" style="position:relative;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span id="cart-count" class="cart-count d-none" aria-live="polite" aria-label="0 units selected">0</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+
+  <!-- =====================================================================
+       MAIN CONTENT
+       ===================================================================== -->
+  <main id="main-content">
+
+    <!-- ===================================================================
+         CATALOG HERO
+         =================================================================== -->
+    <section class="catalog-hero" aria-labelledby="catalog-title">
+      <p class="catalog-hero__label">Our Collection</p>
+      <h1 class="catalog-hero__title" id="catalog-title">Chocolate Catalog</h1>
+      <div class="catalog-hero__divider" aria-hidden="true">
+        <span class="catalog-hero__heart">♥</span>
+      </div>
+      <p class="catalog-hero__subtitle">
+        Discover our most special creations, made with passion and the finest ingredients.
+      </p>
+    </section>
+
+
+    <section id="analytics-consent" class="catalog-analytics-notice" aria-labelledby="catalog-analytics-title">
+      <h2 id="catalog-analytics-title">Statistics preferences</h2>
+      <p>We use optional statistics to understand visits to the catalog. Google Analytics loads only if you accept. You can change your choice in Privacy.</p>
+      <a href="{{PRIVACY_PATH}}" data-catalog-privacy-link>Privacy</a>
+      <div class="catalog-analytics-notice__actions">
+        <button type="button" class="catalog-analytics-notice__button" data-consent-choice="rejected">Reject statistics</button>
+        <button type="button" class="catalog-analytics-notice__button" data-consent-choice="accepted">Accept statistics</button>
+      </div>
+      <noscript>Enable JavaScript to change statistics preferences.</noscript>
+    </section>
+
+    <!-- ===================================================================
+         CATALOG LAYOUT: SIDEBAR + CONTENT
+         =================================================================== -->
+    <div class="catalog-layout">
+
+      <!-- ----------------------------------------------------------------
+           SIDEBAR — FILTERS (desktop)
+           ---------------------------------------------------------------- -->
+      <aside class="filter-sidebar" aria-label="Product filters">
+
+        <p class="filter-sidebar__title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+            <line x1="11" y1="18" x2="13" y2="18"></line>
+          </svg>
+          Filters
+        </p>
+
+        <!-- Categories -->
+        <div class="filter-group" data-filter-field="category">
+          <p class="filter-group__heading">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+              aria-hidden="true">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+              <line x1="7" y1="7" x2="7.01" y2="7"></line>
+            </svg>
+            Categories
+          </p>
+        </div>
+
+        <div class="filter-divider" aria-hidden="true"></div>
+
+        <!-- Flavors -->
+        <div class="filter-group" data-filter-field="flavor">
+          <p class="filter-group__heading">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+              aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            Flavors
+          </p>
+        </div>
+
+        <div class="filter-divider" aria-hidden="true"></div>
+
+        <button type="button" class="btn-allergies" data-bs-toggle="modal" data-bs-target="#allergiesModal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Allergies
+        </button>
+
+      </aside>
+
+
+      <!-- ----------------------------------------------------------------
+           MAIN CATALOG AREA
+           ---------------------------------------------------------------- -->
+      <section class="catalog-main" aria-label="Product catalog">
+
+        <!-- Search + Sort toolbar -->
+        <div class="catalog-toolbar">
+          <!-- Filters button (mobile only) -->
+          <button class="filters-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtersOffcanvas"
+            aria-controls="filtersOffcanvas">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+              aria-hidden="true">
+              <line x1="4" y1="6" x2="20" y2="6"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+              <line x1="11" y1="18" x2="13" y2="18"></line>
+            </svg>
+            Filters
+          </button>
+
+          <!-- Search -->
+          <div class="search-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="search" id="search-input" class="search-input" placeholder="Search chocolates..."
+              aria-label="Search products" autocomplete="off">
+          </div>
+
+          <!-- Sort -->
+          <select id="sort-select" class="sort-select" aria-label="Sort products">
+            <option value="featured">Featured</option>
+            <option value="bestsellers">Best Sellers</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
+        </div>
+
+
+        <!-- Special Collection -->
+        <div class="special-section" id="special-collection" aria-labelledby="special-heading">
+          <div class="special-section__header">
+            <h2 class="special-section__label" id="special-heading" tabindex="-1">Special Collection</h2>
+            <div class="special-section__arrows">
+              <button type="button" id="special-playback" class="carousel-arrow-btn carousel-playback-btn"
+                aria-controls="special-track" aria-label="Pause special collection" hidden>Pause</button>
+              <button id="special-prev" class="carousel-arrow-btn" aria-label="Previous special items">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                  aria-hidden="true">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <button id="special-next" class="carousel-arrow-btn" aria-label="Next special items">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                  aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="special-carousel-viewport">
+            <div id="special-track" role="list" aria-label="Special collection items" aria-live="off"></div>
+          </div>
+        </div>
+
+
+        <!-- Product Grid -->
+        <div class="catalog-grid-wrap" id="catalog-grid-wrap">
+          <!-- Best Seller slot -->
+          <div id="bestseller-slot"></div>
+          <!-- Dynamic product cards injected here by JS -->
+        </div>
+        <!-- No results -->
+        <p id="no-results" class="d-none" role="status" aria-live="polite"
+          style="text-align:center;padding:2rem;color:var(--steel-teal);font-style:italic;">
+          No products match your current filters.
+        </p>
+
+      </section>
+    </div><!-- /.catalog-layout -->
+
+  </main><!-- /#main-content -->
+
+
+  <!-- =====================================================================
+       FOOTER
+       ===================================================================== -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+
+      <!-- Feature Icons Row -->
+      <div class="footer-features">
+        <div class="footer-feature">
+          <div class="footer-feature__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <div class="footer-feature__text">
+            <strong>Finest Ingredients</strong>
+            <span>Sourced with care</span>
+          </div>
+        </div>
+        <div class="footer-feature">
+          <div class="footer-feature__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"></path>
+              <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+            </svg>
+          </div>
+          <div class="footer-feature__text">
+            <strong>Handcrafted</strong>
+            <span>Made in small batches</span>
+          </div>
+        </div>
+        <div class="footer-feature">
+          <div class="footer-feature__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </div>
+          <div class="footer-feature__text">
+            <strong>Sustainable Cocoa</strong>
+            <span>Ethically sourced</span>
+          </div>
+        </div>
+        <div class="footer-feature">
+          <div class="footer-feature__icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13"></rect>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+              <circle cx="5.5" cy="18.5" r="2.5"></circle>
+              <circle cx="18.5" cy="18.5" r="2.5"></circle>
+            </svg>
+          </div>
+          <div class="footer-feature__text">
+            <strong>Secure Packaging</strong>
+            <span>Perfect for gifting</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row -->
+      <div class="footer-bottom">
+        <p class="footer-credit">
+          Developed by <a href="https://www.gotanweb.com/" target="_blank" rel="noopener noreferrer">Gotan Web</a>
+          &nbsp;·&nbsp;
+          <a href="https://www.gotanweb.com/" target="_blank" rel="noopener noreferrer">www.gotanweb.com</a>
+        </p>
+      </div>
+
+    </div>
+    <p class="catalog-privacy"><a href="{{PRIVACY_PATH}}" data-privacy-link>Privacy</a></p>
+    <p id="catalog-analytics-status" class="visually-hidden" role="status" data-catalog-dynamic></p>
+  </footer>
+
+
+  <!-- =====================================================================
+       OFFCANVAS — MOBILE FILTERS
+       ===================================================================== -->
+  <div class="offcanvas offcanvas-start offcanvas-filters" tabindex="-1" id="filtersOffcanvas"
+    aria-labelledby="filtersOffcanvasLabel">
+    <div class="offcanvas-header">
+      <h2 class="offcanvas-title" id="filtersOffcanvasLabel">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+          style="margin-right:0.4rem;opacity:.7;">
+          <line x1="4" y1="6" x2="20" y2="6"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+          <line x1="11" y1="18" x2="13" y2="18"></line>
+        </svg>
+        Filters
+      </h2>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close filters"></button>
+    </div>
+    <div class="offcanvas-body">
+
+      <!-- Main Navigation Links (Mobile) -->
+      <div class="offcanvas-nav-links d-lg-none mb-4">
+        <a href="{{LINKS_PATH}}" data-catalog-links class="offcanvas-nav-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+          Links
+        </a>
+        <a href="/" class="offcanvas-nav-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          Website
+        </a>
+        <div class="filter-divider" aria-hidden="true"></div>
+      </div>
+
+      <!-- Categories -->
+      <div class="filter-group" data-filter-field="category">
+        <p class="filter-group__heading">Categories</p>
+      </div>
+
+      <div class="filter-divider" aria-hidden="true"></div>
+
+      <!-- Flavors -->
+      <div class="filter-group" data-filter-field="flavor">
+        <p class="filter-group__heading">Flavors</p>
+      </div>
+
+      <div class="filter-divider" aria-hidden="true"></div>
+
+      <button type="button" class="btn-allergies w-100" data-bs-toggle="modal" data-bs-target="#allergiesModal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        Allergies Information
+      </button>
+
+    </div>
+  </div>
+
+
+  <!-- My Selection and CAT-IMP-003B inquiry; no order or payment is recorded. -->
+  <aside class="offcanvas offcanvas-end selection-panel" tabindex="-1" id="mySelection"
+    aria-labelledby="selection-title">
+    <div class="offcanvas-header">
+      <h2 id="selection-title" class="offcanvas-title">My Selection</h2>
+      <button id="selection-close" type="button" class="btn-close" data-bs-dismiss="offcanvas"
+        aria-label="Close My Selection"></button>
+    </div>
+    <div class="offcanvas-body selection-panel__body">
+      <p id="selection-storage-message" class="selection-panel__notice" hidden></p>
+      <div id="selection-empty" class="selection-panel__empty">
+        <p>Your selection is empty.</p>
+        <button id="selection-empty-explore" type="button" class="btn-details" data-bs-dismiss="offcanvas">Continue exploring</button>
+      </div>
+      <div id="selection-items"></div>
+      <form id="selection-inquiry-form" class="selection-inquiry" autocomplete="off" novalidate
+        aria-labelledby="selection-inquiry-title" aria-describedby="selection-inquiry-notice">
+        <h3 id="selection-inquiry-title">Your inquiry</h3>
+        <div class="selection-inquiry__field">
+          <label for="inquiry-name">Full Name <span>(required)</span></label>
+          <input id="inquiry-name" type="text" required maxlength="100" autocomplete="off"
+            aria-describedby="inquiry-name-error">
+          <p id="inquiry-name-error" class="selection-inquiry__error" hidden></p>
+        </div>
+        <div class="selection-inquiry__field">
+          <label for="inquiry-company">Company <span>(optional)</span></label>
+          <input id="inquiry-company" type="text" maxlength="120" autocomplete="off"
+            aria-describedby="inquiry-company-error">
+          <p id="inquiry-company-error" class="selection-inquiry__error" hidden></p>
+        </div>
+        <div class="selection-inquiry__field">
+          <label for="inquiry-event-date">Event Date <span>(optional)</span></label>
+          <input id="inquiry-event-date" type="date" autocomplete="off"
+            aria-describedby="inquiry-event-date-error">
+          <p id="inquiry-event-date-error" class="selection-inquiry__error" hidden></p>
+        </div>
+        <div class="selection-inquiry__field">
+          <label for="inquiry-comments">Additional Comments <span>(optional, up to 1,000 characters)</span></label>
+          <textarea id="inquiry-comments" rows="4" maxlength="1000" autocomplete="off"
+            aria-describedby="inquiry-comments-error"></textarea>
+          <p id="inquiry-comments-error" class="selection-inquiry__error" hidden></p>
+        </div>
+        <p id="selection-inquiry-notice" class="selection-panel__notice">Opening WhatsApp shares these details with WhatsApp. Review and send the message there manually. Both inquiry actions require accepting the commercial terms first.</p>
+        <p id="inquiry-selection-message" class="selection-inquiry__error" tabindex="-1" hidden></p>
+        <p id="inquiry-form-hint" class="selection-inquiry__hint">Enter your full name and select at least one valid product to continue.</p>
+        <div class="selection-inquiry__actions">
+          <button id="inquiry-whatsapp" type="submit" class="selection-panel__action" disabled
+            aria-describedby="selection-inquiry-notice inquiry-form-hint">Send Inquiry via WhatsApp</button>
+          <button id="inquiry-copy" type="button" class="selection-panel__action" disabled
+            aria-describedby="inquiry-form-hint">Copy Inquiry Message</button>
+        </div>
+        <p id="inquiry-action-status" class="selection-inquiry__hint" role="status" aria-live="polite" aria-atomic="true"></p>
+      </form>
+    </div>
+    <div class="selection-panel__summary">
+      <p><span>Valid units</span> <strong id="selection-valid-units">0</strong></p>
+      <p><span>Estimated subtotal</span> <strong id="selection-subtotal">$0.00</strong></p>
+      <p id="selection-subtotal-message" class="selection-panel__notice" hidden></p>
+      <small>Estimated prices exclude taxes, delivery and other charges. Montfrut will confirm final pricing and availability.</small>
+      <button id="selection-clear" type="button" class="btn-details" hidden>Clear selection</button>
+      <div id="selection-clear-confirm" class="selection-panel__confirm" role="group" aria-labelledby="selection-clear-question" hidden>
+        <p id="selection-clear-question">Clear every item from your selection?</p>
+        <button id="selection-confirm-clear" type="button" class="btn-details">Yes, clear selection</button>
+        <button id="selection-cancel-clear" type="button" class="btn-details">Keep selection</button>
+      </div>
+    </div>
+    <p id="selection-live" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
+  </aside>
+
+  <!-- =====================================================================
+       PRODUCT MODAL
+       ===================================================================== -->
+  <div class="modal fade modal-product" id="productModal" tabindex="-1" aria-labelledby="productModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+
+        <!-- Header -->
+        <div class="modal-header">
+          <h3 class="modal-title" id="productModalLabel">
+            <span id="modal-title">Product Name</span>
+          </h3>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close product details"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+          <div class="row g-4">
+
+            <!-- Left: Carousel -->
+            <div class="col-md-6">
+              <div id="modalCarousel" class="carousel slide modal-carousel" data-bs-ride="false"
+                aria-label="Product images">
+                <div class="carousel-indicators" id="modal-carousel-indicators"></div>
+                <div class="carousel-inner" id="modal-carousel-inner"></div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#modalCarousel"
+                  data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Previous image</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#modalCarousel"
+                  data-bs-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Next image</span>
+                </button>
+              </div>
+              <div id="modal-thumbnails" class="modal-thumbnails" aria-label="Product image thumbnails"></div>
+            </div>
+
+            <!-- Right: Info -->
+            <div class="col-md-6">
+              <p class="modal-price" id="modal-price" aria-live="polite" aria-label="Unit price in USD">$0.00</p>
+
+              <p class="modal-section-label">Description</p>
+              <p class="modal-text" id="modal-description"></p>
+
+              <p class="modal-section-label">Allergy Information</p>
+              <div id="modal-tags" class="d-flex flex-wrap gap-1 mb-1"></div>
+
+              <p class="modal-section-label">Flavor Notes</p>
+              <div id="modal-flavor-notes" class="d-flex flex-wrap mb-1"></div>
+
+              <p class="modal-section-label">Ingredients</p>
+              <p class="modal-text" id="modal-ingredients"></p>
+
+              <p id="selection-edit-note" class="modal-text" hidden></p>
+              <div id="modal-variants" hidden></div>
+              <p id="modal-selection-message" class="selection-validation" role="status" aria-live="polite" hidden></p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+          <button type="button" id="modal-add-to-cart" class="btn-add-to-cart" data-id="" data-name="">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <span id="modal-selection-action-label">Add to Selection</span>
+          </button>
+          <button type="button" class="btn-details" data-bs-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =====================================================================
+       TOAST — Add to Selection Notification
+       ===================================================================== -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" aria-live="polite" aria-atomic="true">
+    <div id="cart-toast" class="toast montfrut-toast" role="status" aria-live="polite" aria-atomic="true"
+      data-bs-delay="3000">
+      <div class="toast-header">
+        <span class="toast-title">Montfrut</span>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="toast"
+          aria-label="Dismiss notification"></button>
+      </div>
+      <div class="toast-body">
+        <span class="toast-check-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff"
+            stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+        <span id="toast-body-text">Product added to selection.</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =====================================================================
+       ALLERGIES MODAL
+       ===================================================================== -->
+  <div class="modal fade" id="allergiesModal" tabindex="-1" aria-labelledby="allergiesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="allergiesModalLabel" data-catalog-text-source="Allergy Information">Allergy Information</h3>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>At Montfrut, we take food safety seriously. Please be aware that our products are handcrafted in a facility
+            that processes common allergens.</p>
+          <ul class="allergy-list">
+            <li><strong>Dairy:</strong> Many of our chocolates contain cream and butter.</li>
+            <li><strong>Nuts:</strong> We use hazelnuts, pistachios, and almonds in various recipes.</li>
+            <li><strong>Soy:</strong> Some ingredients may contain soy lecithin as an emulsifier.</li>
+            <li><strong>Gluten:</strong> While many products are gluten-free, cross-contamination is possible.</li>
+          </ul>
+          <p class="mt-3 text-muted" style="font-size: 0.85rem;">For specific ingredient questions, please check the
+            details of each individual product or contact our team.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-details" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Consent is requested for every inquiry action; it is never persisted. -->
+  <div class="modal fade catalog-consent" id="inquiryConsentModal" tabindex="-1"
+    aria-labelledby="inquiry-consent-title" aria-describedby="inquiry-consent-text" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="inquiry-consent-title">Commercial terms</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close consent dialog"></button>
+        </div>
+        <div class="modal-body">
+          <p id="inquiry-consent-text">I understand that this inquiry does not constitute a purchase or reservation. The amounts shown do not include taxes, shipping, or other charges. Montfrut will confirm final prices, availability, delivery, and terms.</p>
+        </div>
+        <div class="modal-footer">
+          <button id="inquiry-consent-reject" type="button" class="catalog-consent__button catalog-consent__button--secondary" data-bs-dismiss="modal">I Don't Accept.</button>
+          <button id="inquiry-consent-accept" type="button" class="catalog-consent__button catalog-consent__button--primary">I Accept.</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Montfrut Scripts -->
+  <script src="/catalog/js/products.js?v=2.3"></script>
+  <script src="/catalog/js/translations.js?v=2.4"></script>
+  <script src="/catalog/js/scripts.js?v=2.4"></script>
+
+  <script src="/links/assets/js/consent.js"></script>
+  <script src="/catalog/js/analytics.js?v=1.0"></script>
+  <script src="/catalog/js/consent-ui.js?v=1.0"></script>
+
+  <script>
+    // Robustness check: if after 2 seconds the grid is still empty, try to re-render
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const grid = document.getElementById('catalog-grid-wrap');
+        if (grid && grid.children.length <= 1) { // 1 because of bestseller-slot
+          console.warn('Montfrut Catalog: Grid seems empty, forcing re-render...');
+          if (typeof renderProductGrid === 'function') renderProductGrid();
+          if (typeof renderSpecialCollection === 'function') renderSpecialCollection();
+        }
+      }, 2000);
+    });
+  </script>
+
+</body>
+
+</html>

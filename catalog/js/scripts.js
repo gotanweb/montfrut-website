@@ -693,7 +693,7 @@ function renderMySelection(focusKey = null, focusAction = null) {
     const name = product ? localizedProduct(product).name : `${SELECTION_COPY.missing} (${item.productId})`;
     const row = selectionElement('article', 'selection-panel__line');
     const image = selectionElement(product ? 'img' : 'div', 'selection-panel__image', product ? undefined : '—');
-    if (product) { image.src = product.image; image.alt = name; image.loading = 'lazy'; image.width = 72; image.height = 72; }
+    if (product) { image.src = catalogAssetUrl(product.image); image.alt = name; image.loading = 'lazy'; image.width = 72; image.height = 72; }
     row.appendChild(image);
     const content = selectionElement('div', 'selection-panel__content');
     content.appendChild(selectionElement('h3', '', name));

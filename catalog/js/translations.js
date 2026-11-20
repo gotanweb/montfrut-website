@@ -2,6 +2,17 @@
 
 // CAT-IMP-004 / CAT-REF-001: interface translations and language behavior; product texts live in products.js.
 const CATALOG_ES = Object.freeze({
+  "Statistics preferences": "Preferencias de estadísticas",
+  "We use optional statistics to understand visits to the catalog. Google Analytics loads only if you accept. You can change your choice in Privacy.": "Usamos estadísticas opcionales para conocer las visitas al catálogo. Google Analytics solo se carga si aceptás. Podés cambiar tu elección en Privacidad.",
+  "Accept statistics": "Aceptar estadísticas",
+  "Reject statistics": "Rechazar estadísticas",
+  "Privacy": "Privacidad",
+  "Statistics accepted.": "Estadísticas aceptadas.",
+  "Statistics rejected.": "Estadísticas rechazadas.",
+  "No explicit choice: statistics disabled.": "Sin elección explícita: estadísticas desactivadas.",
+  "Your choice could not be saved; it applies only on this page.": "No se pudo guardar la elección; se aplica solo en esta página.",
+  "Enable JavaScript to change statistics preferences.": "Habilitá JavaScript para cambiar las preferencias de estadísticas.",
+  "The language could not be changed. Please try again.": "No se pudo cambiar el idioma. Intentá nuevamente.",
   "Catalog language": "Idioma del catálogo",
   "Language changes apply only to this visit because saving is unavailable.": "El idioma se mantendrá solo durante esta visita porque no se puede guardar.",
   "Montfrut - Artisan Chocolate Catalog": "Montfrut - Catálogo de chocolates artesanales",
@@ -201,7 +212,6 @@ const CATALOG_ES = Object.freeze({
 let catalogLanguage = detectCatalogLanguage();
 const catalogStaticNodes = [];
 const catalogStaticAttributes = [];
-let catalogStructuredData = null;
 
 function normalizeCatalogLanguage(locale) {
   const language = typeof locale === 'string' ? locale.toLowerCase().split('-')[0] : '';
@@ -209,17 +219,51 @@ function normalizeCatalogLanguage(locale) {
 }
 
 function detectCatalogLanguage() {
-  try {
-    const saved = normalizeCatalogLanguage(window.localStorage.getItem('montfrut.language'));
-    if (saved) return saved;
-  } catch { /* Storage is optional; preserve the visitor's work in memory. */ }
-  const browser = window.navigator || {};
-  const languages = browser.languages && browser.languages.length ? browser.languages : [browser.language];
-  for (const locale of languages) {
-    const language = normalizeCatalogLanguage(locale);
-    if (language) return language;
-  }
-  return 'en';
+  // A saved preference or browser language never overrides an explicit catalog URL.
+  return /^\/catalog\/en(?:\/|$)/.test(window.location.pathname) ? 'en' : 'es';
+}
+
+function catalogPath(language = catalogLanguage) {
+  return language === 'en' ? '/catalog/en/' : '/catalog/';
+}
+
+function catalogAssetUrl(path) {
+  const url = new URL(path, 'https://montfrut.com/catalog/');
+  return url.origin === 'https://montfrut.com' ? url.pathname + url.search + url.hash : url.href;
+}
+
+function catalogSeo(language = catalogLanguage) {
+  const url = 'https://montfrut.com' + catalogPath(language);
+  const title = catalogText('Montfrut - Artisan Chocolate Catalog', {}, language);
+  const description = catalogText('Montfrut - Premium artisan chocolates handcrafted with the finest ingredients. Discover our full catalog of bonbons, truffles, bars, and gift boxes.', {}, language);
+  return {
+    url, title, description, locale: language === 'es' ? 'es_US' : 'en_US',
+    structured: {
+      '@context': 'https://schema.org', '@type': 'CollectionPage', '@id': url + '#webpage',
+      url, name: catalogText('Chocolate Catalog', {}, language), description, inLanguage: language,
+      publisher: { '@type': 'Organization', '@id': 'https://montfrut.com/#organization',
+        name: 'Montfrut', url: 'https://montfrut.com/',
+        logo: { '@type': 'ImageObject', url: 'https://montfrut.com/links/assets/img/montfrut-logo.png' } },
+      mainEntity: { '@type': 'ItemList', numberOfItems: products.length,
+        itemListElement: products.map((product, index) => {
+          const view = localizedProduct(product, language);
+          return { '@type': 'ListItem', position: index + 1, name: view.name,
+            description: view.shortDescription, image: new URL(view.image, 'https://montfrut.com').href };
+        }) }
+    }
+  };
+}
+
+function updateCatalogSEO() {
+  const seo = catalogSeo();
+  document.title = seo.title;
+  document.querySelector('link[rel="canonical"]').setAttribute('href', seo.url);
+  for (const property of ['og:url', 'twitter:url']) document.querySelector(`meta[property="${property}"]`).setAttribute('content', seo.url);
+  document.querySelector('meta[property="og:locale"]').setAttribute('content', seo.locale);
+  document.querySelector('meta[property="og:locale:alternate"]').setAttribute('content', catalogLanguage === 'es' ? 'en_US' : 'es_US');
+  document.querySelector('script[type="application/ld+json"]').textContent = JSON.stringify(seo.structured, null, 2);
+  document.querySelectorAll('[data-catalog-links]').forEach(link => link.setAttribute('href', catalogLanguage === 'es' ? '/links/' : '/links/en/'));
+  document.querySelectorAll('[data-privacy-link], [data-catalog-privacy-link]').forEach(link => link.setAttribute('href', catalogLanguage === 'es' ? '/privacy/' : '/privacy/en/'));
 }
 
 function catalogText(source, values = {}, language = catalogLanguage) {
@@ -261,6 +305,7 @@ function localizedProduct(product, language = catalogLanguage) {
   const english = product.translations.en;
   const translated = product.translations[language] || {};
   return { ...product,
+    image: catalogAssetUrl(product.image), galleryImages: product.galleryImages.map(catalogAssetUrl),
     name: translated.name ?? english.name,
     shortDescription: translated.shortDescription ?? english.shortDescription,
     longDescription: translated.longDescription ?? english.longDescription,
@@ -280,26 +325,24 @@ function variantLabel(label, language = catalogLanguage) {
 function captureCatalogStaticText() {
   const walk = node => {
     if (node.nodeType === 3) {
-      if (node.nodeValue.trim()) catalogStaticNodes.push({ node, source: node.nodeValue });
+      // An explicit source disambiguates interface aliases with the same Spanish text.
+      const explicit = node.parentElement && node.parentElement.getAttribute('data-catalog-text-source');
+      if (node.nodeValue.trim()) catalogStaticNodes.push({ node, source: node.nodeValue.replace(/\S[\s\S]*\S|\S/, text => explicit || catalogSource(text.replace(/\s+/g, ' '))) });
       return;
     }
     if (['SCRIPT', 'STYLE', 'TEXTAREA'].includes(node.tagName) ||
-        (node.nodeType === 1 && node.hasAttribute('data-catalog-filter-option'))) return;
+        (node.nodeType === 1 && (node.hasAttribute('data-catalog-filter-option') || node.hasAttribute('data-catalog-dynamic')))) return;
     if (node.nodeType === 1) {
       const attributes = ['aria-label', 'title', 'alt', 'placeholder'];
       if (node.tagName === 'META' && (['description', 'keywords'].includes(node.getAttribute('name')) ||
-          ['og:title', 'og:description', 'twitter:title', 'twitter:description'].includes(node.getAttribute('property')))) attributes.push('content');
+          ['og:title', 'og:description', 'og:image:alt', 'twitter:title', 'twitter:description', 'twitter:image:alt'].includes(node.getAttribute('property')))) attributes.push('content');
       for (const name of attributes) {
-        if (node.hasAttribute(name)) catalogStaticAttributes.push({ node, name, source: node.getAttribute(name) });
+        if (node.hasAttribute(name)) catalogStaticAttributes.push({ node, name, source: catalogSource(node.getAttribute(name)) });
       }
     }
     for (const child of node.childNodes || []) walk(child);
   };
   walk(document.documentElement);
-  const structured = document.querySelector('script[type="application/ld+json"]');
-  if (structured) {
-    try { catalogStructuredData = { node: structured, data: JSON.parse(structured.textContent) }; } catch { /* Leave unrelated metadata intact. */ }
-  }
 }
 
 function applyCatalogStaticText() {
@@ -312,16 +355,7 @@ function applyCatalogStaticText() {
     if (node.isConnected) node.setAttribute(name, catalogText(source));
   }
   document.getElementById('catalog-language').value = catalogLanguage;
-  if (catalogStructuredData) {
-    const data = JSON.parse(JSON.stringify(catalogStructuredData.data));
-    data.name = catalogLanguage === 'es' ? 'Catálogo de Chocolates Montfrut' : 'Montfrut Chocolate Catalog';
-    data.description = catalogLanguage === 'es' ? 'Explora nuestra colección exclusiva de chocolates artesanales, bombones, trufas y cajas de regalo premium.' : 'Explore our exclusive collection of artisan chocolates, bonbons, truffles and premium gift boxes.';
-    data.mainEntity.itemListElement = products.map((product, index) => {
-      const view = localizedProduct(product);
-      return { '@type': 'ListItem', position: index + 1, name: view.name, description: view.shortDescription };
-    });
-    catalogStructuredData.node.textContent = JSON.stringify(data, null, 2);
-  }
+  updateCatalogSEO();
 }
 
 function catalogSource(text) {
@@ -356,9 +390,17 @@ function refreshProductLanguage() {
   updateModalConfiguration();
 }
 
-function setCatalogLanguage(locale, { persist = true } = {}) {
+function setCatalogLanguage(locale, { persist = true, navigate = true } = {}) {
   const language = normalizeCatalogLanguage(locale);
   if (!language) return false;
+  if (navigate && window.location.pathname !== catalogPath(language)) {
+    try { window.history.pushState(null, '', catalogPath(language)); }
+    catch {
+      document.getElementById('catalog-language').value = catalogLanguage;
+      document.getElementById('catalog-language-status').textContent = catalogText('The language could not be changed. Please try again.');
+      return false;
+    }
+  }
   catalogLanguage = language;
   let saved = true;
   if (persist) {
@@ -389,6 +431,7 @@ function setCatalogLanguage(locale, { persist = true } = {}) {
   document.getElementById('catalog-language-status').textContent = saved ? '' : catalogText('Language changes apply only to this visit because saving is unavailable.');
   if (focusedKey) focusSelectionControl(focusedKey, focusedAction);
   else if (canReceiveFocus(active)) active.focus({ preventScroll: true });
+  window.dispatchEvent(new Event('montfrut:catalog-language'));
   return true;
 }
 
@@ -399,8 +442,8 @@ function initializeCatalogLanguage() {
   captureCatalogStaticText();
   applyCatalogStaticText();
   selector.addEventListener('change', () => setCatalogLanguage(selector.value));
-  window.addEventListener('storage', event => {
-    if (event.key === 'montfrut.language') setCatalogLanguage(detectCatalogLanguage(), { persist: false });
+  window.addEventListener('popstate', () => {
+    setCatalogLanguage(detectCatalogLanguage(), { persist: false, navigate: false });
   });
 }
 
